@@ -1,0 +1,423 @@
+<% include partials/header %>
+
+
+
+        <div class="container containerProfile">
+                <div class="card">
+                        <div class="card-body">
+                                <div class="row">
+                                        <div class="col-sm-3">
+                                                <!-- <img src="<%= user.image %>" alt="... "
+                                                     onerror=this.src="https://www.searchpng.com/wp-content/uploads/2019/02/Deafult-Profile-Pitcher.png"
+                                                     class="img-thumbnail img-fluid profilePic">  -->
+                                        </div>
+                                        <div class="col-sm-9">
+                                                <% if(!(user._id.equals(userId))){ %>
+                                                        <%if(following){ %>
+                                                                <form action="/unfollow/<%=user._id%>" method="POST">
+                                                                        <button
+                                                                                class="btn btn-primary float-right">Following</button>
+                                                                </form>
+                                                                <% }else{ %>
+                                                                        <form action="/follow/<%=user._id%>"
+                                                                              method="POST">
+                                                                                <button
+                                                                                        class="btn btn-outline-primary float-right">Follow</button>
+                                                                        </form>
+                                                                        <% } %>
+                                                                                <% } %>
+                                                                                        <h4 class="card-title">
+                                                                                                <%= user.fname%>
+                                                                                                        <%= user.lname%>
+                                                                                        </h4>
+                                                                                        <h5
+                                                                                            class="card-subtitle mb-2 text-muted">
+                                                                                                @<%= user.username%>
+                                                                                        </h5>
+                                                                                        <p class="card-text txtPadding">
+                                                                                                <%= user.bio%>
+                                                                                        </p>
+                                                                                        <p
+                                                                                           class="card-text text-muted txtPadding">
+                                                                                                <i
+                                                                                                   class="fas fa-map-marker-alt"></i>
+                                                                                                <%=user.address%>
+                                                                                        </p>
+                                                                                        <p
+                                                                                           class="card-text text-muted txtPadding">
+                                                                                                <i
+                                                                                                   class="fas fa-birthday-cake"></i>
+                                                                                                <% if(user.dob){ %>
+                                                                                                        <%=moment(user.dob).format('MMMM Do
+                                                                                                                                         YYYY');
+                                                                                                                                         %>
+                                                                                                                <% } %>
+                                                                                        </p>
+                                                                                        <p
+                                                                                           class="card-text text-muted txtPadding">
+                                                                                                <i
+                                                                                                   class="far fa-envelope"></i>
+                                                                                                <%=user.email%>
+                                                                                        </p>
+                                                                                        <span class="followNo">
+                                                                                                <strong>
+                                                                                                        <%=user.follow.length%>
+                                                                                                </strong> Following
+                                                                                                &emsp;
+                                                                                                <strong>
+                                                                                                        <%=user.followers.length%>
+                                                                                                </strong> Followers
+                                                                                        </span>
+
+                                                                                        <% if(user._id.equals(userId)){
+                                                                                           %>
+                                                                                                <a href="/profile/<%=user.username%>/edit"
+                                                                                                   class="btn btn-info float-right">Update
+                                                                                                        Profile</a>
+                                                                                                <% }%>
+
+                                        </div>
+                                </div>
+                        </div>
+                </div>
+                <div class="mx-auto" id="homePageContainer">
+                        <% if(user._id.equals(userId)){ %>
+                                <div class="card mt-2">
+                                        <div class="card-header">
+                                                Create Post
+                                        </div>
+                                        <div class="card-body">
+
+                                                <form action="/post" method="POST" id="postForm"
+                                                      enctype="multipart/form-data">
+                                                        <div class="form-group">
+                                                                <textarea name="text" rows="3"
+                                                                          class="form-control postTextArea"
+                                                                          placeholder="Write something here ......"></textarea>
+                                                        </div>
+                                                        <div class="row">
+                                                                <div class="col-10">
+                                                                        <div class="form-group">
+                                                                                <label for="image">Image</label>
+                                                                                <input type="file"
+                                                                                       class="form-control-file "
+                                                                                       id="image" name="image"
+                                                                                       accept="image/*">
+                                                                        </div>
+                                                                </div>
+                                                                <div class="col-2 postBtnpadding">
+                                                                        <button class="btn btn-primary float-right "
+                                                                                id="postbtn">Post</button>
+                                                                </div>
+                                                        </div>
+                                                </form>
+                                        </div>
+                                </div>
+                                <% } %>
+
+                                        <h6 class="mt-2 mb-0">Posts:</h6>
+                                        <br>
+                                        <% for(let i=0; i<=user.posts.length-1; i++){ %>
+                                                <div class="card">
+                                                        <div class="card-body pb-0 pl-2">
+                                                                <% if(user._id.equals(userId)){ %>
+                                                                        <div class="dropdown">
+                                                                                <i class="fas fa-angle-down fa-2x float-right text-muted "
+                                                                                   href="#" role="button"
+                                                                                   id="dropdownMenuLink"
+                                                                                   data-toggle="dropdown"
+                                                                                   aria-haspopup="true"
+                                                                                   aria-expanded="false"></i>
+
+                                                                                <div class="dropdown-menu"
+                                                                                     aria-labelledby="dropdownMenuLink">
+                                                                                        <a class="dropdown-item"
+                                                                                           href="#">Bookmark(NW)</a>
+                                                                                        <!--modal trigger-->
+                                                                                        <button class="dropdown-item deleteFont"
+                                                                                                data-toggle="modal"
+                                                                                                data-target="#postModal<%= i %>">Delete
+                                                                                                Post</button>
+                                                                                </div>
+                                                                        </div>
+                                                                        <!-- Modal -->
+                                                                        <div class="modal fade" id="postModal<%= i %>"
+                                                                             tabindex="-1" role="dialog"
+                                                                             aria-labelledby="postModalTitle"
+                                                                             aria-hidden="true">
+                                                                                <div class="modal-dialog modal-dialog-centered"
+                                                                                     role="document">
+                                                                                        <div class="modal-content">
+                                                                                                <div
+                                                                                                     class="modal-header">
+                                                                                                        <h5 class="modal-title"
+                                                                                                            id="postModalTitle">
+                                                                                                                Delete
+                                                                                                                Post
+                                                                                                        </h5>
+                                                                                                        <button type="button"
+                                                                                                                class="close"
+                                                                                                                data-dismiss="modal"
+                                                                                                                aria-label="Close">
+                                                                                                                <span
+                                                                                                                      aria-hidden="true">&times;</span>
+                                                                                                        </button>
+                                                                                                </div>
+                                                                                                <div class="modal-body">
+                                                                                                        Are you sure you
+                                                                                                        want to delete
+                                                                                                        this post?
+                                                                                                </div>
+                                                                                                <div
+                                                                                                     class="modal-footer">
+                                                                                                        <button type="button"
+                                                                                                                class="btn btn-secondary"
+                                                                                                                data-dismiss="modal">Cancel</button>
+                                                                                                        <form action="/post/<%=user.posts[i]._id%>?_method=DELETE"
+                                                                                                              method="POST"
+                                                                                                              class="inline">
+                                                                                                                <button
+                                                                                                                        class="btn btn-danger">Delete
+                                                                                                                </button>
+                                                                                                        </form>
+                                                                                                </div>
+                                                                                        </div>
+                                                                                </div>
+                                                                        </div>
+                                                                        <% } %>
+
+                                                                                <h6 class="mb-0">
+                                                                                        <a class="card-title link"
+                                                                                           href="/profile/<%=user.posts[i].author.username%>">
+                                                                                                <!-- <img
+                                                                                                     src="<%= user.image %>"
+                                                                                                     class="img-thumbnail rounded-circle postImg"
+                                                                                                     onerror=this.src='https://www.pngitem.com/pimgs/m/35-350426_profile-icon-png-default-profile-picture-png-transparent.png'>
+                                                                                                <%=user.posts[i].author.username
+                                                                                                                                 %> -->
+                                                                                        </a>
+                                                                                </h6>
+                                                                                <p class="card-text">
+                                                                                        <%= user.posts[i].text %>
+                                                                                </p>
+
+                                                        </div>
+                                                        <%if(user.posts[i].image!==""){ %>
+                                                                <img src="<%= user.posts[i].image %>"
+                                                                     class="card-img-top" alt="...">
+                                                                <%} %>
+                                                                        <div class="card-body pb-0 px-2">
+                                                                                <% var status=false; %>
+                                                                                        <% for(let l of
+                                                                                           user.posts[i].likes){ %>
+                                                                                                <% if(l==userId){ %>
+                                                                                                        <% status=true;
+                                                                                                           %>
+                                                                                                                <% break;
+                                                                                                                   %>
+                                                                                                                        <% }
+                                                                                                                           %>
+                                                                                                                                <% }
+                                                                                                                                   %>
+                                                                                                                                        <% if(status){
+                                                                                                                                           %>
+                                                                                                                                                <a href="/post/<%= user.posts[i]._id%>/unlike"
+                                                                                                                                                   class="likeBtn"><i
+                                                                                                                                                           class="fas fa-heart fa-2x"></i></a>
+                                                                                                                                                <% }else{
+                                                                                                                                                   %>
+                                                                                                                                                        <a href="/post/<%= user.posts[i]._id%>/like"
+                                                                                                                                                           class="likeBtn"><i
+                                                                                                                                                                   class="far fa-heart fa-2x"></i></a>
+                                                                                                                                                        <% }
+                                                                                                                                                           %>
+                                                                                                                                                                <a
+                                                                                                                                                                   href="/post/<%= user.posts[i]._id%>/comments"><i
+                                                                                                                                                                           class="far fa-comment-alt fa-2x"></i></a>
+                                                                                                                                                                <div
+                                                                                                                                                                     class="row">
+                                                                                                                                                                        <div
+                                                                                                                                                                             class="col-7 pr-0">
+                                                                                                                                                                                <p
+                                                                                                                                                                                   class="count">
+                                                                                                                                                                                        <span
+                                                                                                                                                                                              class="likeCount">
+                                                                                                                                                                                                <%= user.posts[i].likes.length
+                                                                                                                                                                                                    %>
+                                                                                                                                                                                        </span>
+                                                                                                                                                                                        likes
+                                                                                                                                                                                        <span>
+                                                                                                                                                                                                <%= user.posts[i].comments.length
+                                                                                                                                                                                                    %>
+                                                                                                                                                                                        </span>
+                                                                                                                                                                                        comments
+                                                                                                                                                                                </p>
+                                                                                                                                                                        </div>
+                                                                                                                                                                        <div
+                                                                                                                                                                             class="col-5 pl-1">
+                                                                                                                                                                                <p
+                                                                                                                                                                                   class="float-right time">
+                                                                                                                                                                                        <%=moment(user.posts[i].createdAt).fromNow()%>
+                                                                                                                                                                                </p>
+                                                                                                                                                                        </div>
+                                                                                                                                                                </div>
+                                                                        </div>
+                                                </div>
+                                                <br>
+                                                <%} %>
+
+
+                                                        <!-- pagination-->
+                                                        <nav aria-label="Page navigation">
+                                                                <% if (pages && pages> 0 ) { %>
+                                                                        <ul class="pagination justify-content-center">
+                                                                                <% if (current==1) { %>
+                                                                                        <li class="page-item disabled">
+                                                                                                <a
+                                                                                                   class="page-link">First</a>
+                                                                                        </li>
+                                                                                        <% } else { %>
+                                                                                                <li><a class="page-link"
+                                                                                                           href="/profile/<%=user.username%>">First</a>
+                                                                                                </li>
+                                                                                                <% } %>
+
+                                                                                                        <% if
+                                                                                                           (current==1)
+                                                                                                           { %>
+                                                                                                                <li
+                                                                                                                    class="page-item disabled">
+                                                                                                                        <a
+                                                                                                                           class="page-link">«</a>
+                                                                                                                </li>
+                                                                                                                <% }
+                                                                                                                   else
+                                                                                                                   { %>
+                                                                                                                        <li><a class="page-link"
+                                                                                                                                   href="/profile/<%=user.username%>?page=<%= Number(current) - 1 %>">«</a>
+                                                                                                                        </li>
+                                                                                                                        <% }
+                                                                                                                           %>
+
+                                                                                                                                <% var
+                                                                                                                                   i=(Number(current)>
+                                                                                                                                        5
+                                                                                                                                        ?
+                                                                                                                                        Number(current)
+                                                                                                                                        -
+                                                                                                                                        4
+                                                                                                                                        :
+                                                                                                                                        1)
+                                                                                                                                        %>
+                                                                                                                                        <% if
+                                                                                                                                           (i
+                                                                                                                                           !==1)
+                                                                                                                                           {
+                                                                                                                                           %>
+                                                                                                                                                <li
+                                                                                                                                                    class="page-item disabled">
+                                                                                                                                                        <a
+                                                                                                                                                           class="page-link">...</a>
+                                                                                                                                                </li>
+                                                                                                                                                <% }
+                                                                                                                                                   %>
+                                                                                                                                                        <% for
+                                                                                                                                                           (;
+                                                                                                                                                           i
+                                                                                                                                                           <=(Number(current)
+                                                                                                                                                           +
+                                                                                                                                                           4)
+                                                                                                                                                           &&
+                                                                                                                                                           i
+                                                                                                                                                           <=pages;
+                                                                                                                                                           i++)
+                                                                                                                                                           {
+                                                                                                                                                           %>
+                                                                                                                                                                <% if
+                                                                                                                                                                   (i==current)
+                                                                                                                                                                   {
+                                                                                                                                                                   %>
+                                                                                                                                                                        <li
+                                                                                                                                                                            class="active">
+                                                                                                                                                                                <a
+                                                                                                                                                                                   class="page-link">
+                                                                                                                                                                                        <%= i
+                                                                                                                                                                                            %>
+                                                                                                                                                                                </a>
+                                                                                                                                                                        </li>
+                                                                                                                                                                        <% }
+                                                                                                                                                                           else
+                                                                                                                                                                           {
+                                                                                                                                                                           %>
+                                                                                                                                                                                <li><a class="page-link"
+                                                                                                                                                                                           href="/profile/<%=user.username%>?page=<%= i %>">
+                                                                                                                                                                                                <%= i
+                                                                                                                                                                                                    %>
+                                                                                                                                                                                        </a>
+                                                                                                                                                                                </li>
+                                                                                                                                                                                <% }
+                                                                                                                                                                                   %>
+                                                                                                                                                                                        <% if
+                                                                                                                                                                                           (i==Number(current)
+                                                                                                                                                                                           +
+                                                                                                                                                                                           4
+                                                                                                                                                                                           &&
+                                                                                                                                                                                           i
+                                                                                                                                                                                           <
+                                                                                                                                                                                           pages)
+                                                                                                                                                                                           {
+                                                                                                                                                                                           %>
+                                                                                                                                                                                                <li
+                                                                                                                                                                                                    class="page-item disabled">
+                                                                                                                                                                                                        <a
+                                                                                                                                                                                                           class="page-link">...</a>
+                                                                                                                                                                                                </li>
+                                                                                                                                                                                                <% }
+                                                                                                                                                                                                   %>
+                                                                                                                                                                                                        <% }
+                                                                                                                                                                                                           %>
+
+                                                                                                                                                                                                                <% if
+                                                                                                                                                                                                                   (current==pages)
+                                                                                                                                                                                                                   {
+                                                                                                                                                                                                                   %>
+                                                                                                                                                                                                                        <li
+                                                                                                                                                                                                                            class="page-item disabled">
+                                                                                                                                                                                                                                <a
+                                                                                                                                                                                                                                   class="page-link">»</a>
+                                                                                                                                                                                                                        </li>
+                                                                                                                                                                                                                        <% }
+                                                                                                                                                                                                                           else
+                                                                                                                                                                                                                           {
+                                                                                                                                                                                                                           %>
+                                                                                                                                                                                                                                <li><a class="page-link"
+                                                                                                                                                                                                                                           href="/profile/<%=user.username%>?page=<%= Number(current) + 1 %>">»</a>
+                                                                                                                                                                                                                                </li>
+                                                                                                                                                                                                                                <% }
+                                                                                                                                                                                                                                   %>
+
+                                                                                                                                                                                                                                        <% if
+                                                                                                                                                                                                                                           (current==pages)
+                                                                                                                                                                                                                                           {
+                                                                                                                                                                                                                                           %>
+                                                                                                                                                                                                                                                <li
+                                                                                                                                                                                                                                                    class="page-item disabled">
+                                                                                                                                                                                                                                                        <a
+                                                                                                                                                                                                                                                           class="page-link">Last</a>
+                                                                                                                                                                                                                                                </li>
+                                                                                                                                                                                                                                                <% }
+                                                                                                                                                                                                                                                   else
+                                                                                                                                                                                                                                                   {
+                                                                                                                                                                                                                                                   %>
+                                                                                                                                                                                                                                                        <li><a class="page-link"
+                                                                                                                                                                                                                                                                   href="/profile/<%=user.username%>?page=<%= pages %>">Last</a>
+                                                                                                                                                                                                                                                        </li>
+                                                                                                                                                                                                                                                        <% }
+                                                                                                                                                                                                                                                           %>
+                                                                        </ul>
+                                                                        <% } %>
+                                                        </nav>
+                </div>
+        </div>
+
+        <% include partials/footer %>

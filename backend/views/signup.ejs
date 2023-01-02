@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">  
+
+        <title>Social Network</title>  
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">  
+        <link rel="stylesheet" type="text/css" href="/stylesheets/main.css"> 
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        <link href="https://fonts.googleapis.com/css?family=Satisfy|Pacifico|Slabo+27px|Roboto&display=swap" rel="stylesheet">   
+
+    </head>  
+    <body>
+        <div class="container">
+            <!--flash message-->
+            <% if(message && message.length > 0){ %>
+                <div class="alert alert-danger" role="alert">
+                    <%= message%>
+                </div>
+            <% } %>
+            <div class="card text-center mx-auto" style="max-width: 25rem;">
+                <div class="card-body">
+                    <h2 class="card-title formHead">Social Network</h2>
+                    <form action="/signup" method="POST">
+                        <div class="form-group">
+                            <input type="text" name="fname" placeholder="First name" class="form-control formTextBox" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="lname" placeholder="Last name" class="form-control formTextBox" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="email" placeholder="email" class="form-control formTextBox" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="username" placeholder="username" class="form-control formTextBox" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="password" name="password" placeholder="password"class="form-control formTextBox" required>
+                        </div>
+                        <button class="btn btn-primary btn-block btn-sm">Sign up</button>
+                    </form>
+                </div>
+            </div>
+            <div class="card text-center mx-auto mt-3" style="max-width: 25rem;">
+                <div class="card-body">
+                    <p class="card-text">Have an account? <a href="/login">Log in</a></p>
+                </div>
+            </div>
+        </div>   
+    </body>
+</html>
