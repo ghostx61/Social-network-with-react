@@ -6,6 +6,8 @@ var localStrategy = require("passport-local");
 var passportLocalMongoose = require("passport-local-mongoose");
 var methodOverride = require("method-override");
 var flash = require("connect-flash");
+const path = require('path');
+const cors = require('cors');
 
 var Comment = require("./models/comment");
 var Post = require("./models/post");
@@ -19,6 +21,9 @@ var commentRoutes = require("./routes/comments");
 
 require('dotenv').config()
 app.use(express.static(__dirname + "/public"));
+app.use(express.static(path.join(__dirname, '../frontend/build/')));
+app.use(cors());
+
 app.use(methodOverride("_method"));
 app.locals.moment = require('moment');
 
@@ -69,14 +74,17 @@ app.use(function (req, res, next) {
   next();
 });
 
-app.use(profileRoutes);
-app.use(authRoutes);
-app.use(postRoutes);
-app.use(indexRoutes);
-app.use(commentRoutes);
+app.use("/api", profileRoutes);
+app.use("/api", authRoutes);
+app.use("/api", postRoutes);
+app.use("/api", indexRoutes);
+app.use("/api", commentRoutes);
 
+app.use('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/build/', 'index.html'));
+});
 //PORT variable for heroku deploy
-app.listen(process.env.PORT || 3000, function () {
-  console.log("Server running on port 3000");
+app.listen(process.env.PORT || 3100, function () {
+  console.log("Server running on port 3100");
 });
 
