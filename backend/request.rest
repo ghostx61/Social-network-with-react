@@ -10,6 +10,10 @@ Content-Type: application/json
     "email": "test2@test.com"
 }
 
+###auth middleware testing
+GET http://localhost:3100/api/auth/guard HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjNiNWFmNjE4MmE0NzYwYmYwY2UzNGRmIn0sImlhdCI6MTY3MjkwMzU3OCwiZXhwIjoxNjcyOTIxNTc4fQ.tvWRY84-35UF0mlZr0X8RFiLwiX-VrHKp9dslVCuO28
+
 ###======   Auth Routes  ============
 ###Register User
 POST http://localhost:3100/api/auth/signup HTTP/1.1

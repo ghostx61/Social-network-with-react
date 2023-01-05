@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { check, validationResult } = require('express-validator');
 
+const auth = require('../middleware/auth');
 var User = require("../models/user");
 
 
@@ -18,6 +19,12 @@ router.get("/login", function (req, res) {
     res.render("login");
 });
 
+
+//GET |   get auth middleware(test)  |  /api/auth/guard
+router.get('/guard', auth, (req, res) => {
+    console.log(req.user);
+    res.send('guard page');
+})
 
 //POST |   user signup  |  /api/auth/signup
 router.post("/signup", [
@@ -139,7 +146,8 @@ router.post('/login', [
                 id: user.id
             }
         }
-        const expiresIn = process.env.JWTSECRET === 'dev' ? '3600000' : '3600';
+        const expiresIn = process.env.ENVIRONMENT === 'dev' ? '10h' : '1h';
+        console.log(expiresIn);
         jwt.sign(
             payload,
             process.env.JWTSECRET,
