@@ -40,6 +40,7 @@ var $ = require("jquery")(window);
 
 var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json({ extended: false }));
 
 var cloudinary = require('cloudinary');
 cloudinary.config({
@@ -49,6 +50,7 @@ cloudinary.config({
 });
 
 //DATABASEURL variable for mongoAtlas
+mongoose.set("strictQuery", false); // to remove mongoose warning
 mongoose.connect(process.env.DATABASE_URL || "mongodb://localhost:27017/mongoDemo_v7", { useNewUrlParser: true }).
   then(res => {
     console.log('connnected to DATABASE');
@@ -75,10 +77,19 @@ app.use(function (req, res, next) {
 });
 
 app.use("/api", profileRoutes);
-app.use("/api", authRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api", postRoutes);
 app.use("/api", indexRoutes);
 app.use("/api", commentRoutes);
+
+// for testing
+app.get('/api/name', (req, res) => {
+  res.send('api home');
+})
+app.post('/api/ytest', (req, res) => {
+  console.log(req.body);
+  res.send('api post');
+})
 
 app.use('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/build/', 'index.html'));
