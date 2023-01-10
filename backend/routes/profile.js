@@ -1,5 +1,6 @@
 var express = require("express");
 var router = express.Router();
+const { check, validationResult } = require('express-validator');
 //cloudinary config
 var multer = require('multer');
 var storage = multer.diskStorage({
@@ -27,64 +28,113 @@ var User = require("../models/user");
 var Post = require("../models/post");
 var Comment = require("../models/comment");
 var middleware = require("../middleware");
+const auth = require('../middleware/auth');
+const checkOwner = require('../middleware/checkOwner');
 
-//user posts
-router.get("/profile/:username", middleware.isLoggedIn, function (req, res) {
-    User.findOne({ username: req.params.username }).populate('posts').lean().exec(
-        function (err, foundUser) {
-            if (err && foundUser) {
-                console.log(err);
-                req.flash("error", err.message);
-                res.redirect("back");
-            } else {
-                // follow status
-                var status = false;
-                for (let follow of req.user.follow) {
-                    if (follow == foundUser._id)
-                        status = true;
-                }
-                var posts = [];
-                //post in order of time
-                for (let i = foundUser.posts.length - 1; i >= 0; i--) {
-                    posts.push(foundUser.posts[i]);
-                }
-                foundUser.posts = posts;
-
-                //pagination
-                var perPage = 6;
-                var pageQuery = parseInt(req.query.page);
-                var pageNumber = pageQuery ? pageQuery : 1;
-                var userPostArr = [];
-                var count = Math.ceil(foundUser.posts.length / perPage);
-                if (foundUser.posts.length > 6) {
-                    var loopIndex = ((pageNumber - 1) * 6);
-                    for (let i = loopIndex; i <= loopIndex + 5; i++) {
-                        if (!foundUser.posts[i])
-                            break;
-                        userPostArr.push(foundUser.posts[i]);
-                    }
-                    foundUser.posts = userPostArr;
-                }
-                const data = { user: foundUser, userId: req.user._id, following: status, User: req.user, current: pageNumber, pages: count };
-                console.log(data);
-                res.render("profile", data);
-            }
-        }
-    );
+// GET  | get user profile and posts  | /api/profile/:username
+router.get("/:username", auth, async (req, res) => {
+    try {
+        console.log(req.params.username);
+        const profileData = await User.findOne({ username: req.params.username })
+            .populate('post');
+        console.log(profileData);
+        res.json(profileData);
+    } catch (err) {
+        console.log(err.message);
+        return res.send('profile error');
+    }
 });
+
+// POST  | Create new post  | /api/profile/new
+router.post('/new', auth, (req, res) => {
+    res.send('new post');
+})
+
+// PUT | Edit user profile | /api/profile/:username/edit
+router.put('/edit',
+    auth,
+    [check('fname', 'Full name is required').isLength({ min: 1 }),
+    check('lname', 'Last name is required').isLength({ min: 1 }),
+    check('username', 'Username is required').isLength({ min: 1 }),
+    check('email', 'Enter a valid email address').isEmail()],
+    async (req, res) => {
+        try {
+            console.log(req.body);
+            const errors = validationResult(req);
+            // console.log(req.body);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({ errors: errors.array() });
+            }
+            const { fname, lname, email, username } = req.body;
+            let user = await User.findById(req.user.id);
+            user.fname = fname;
+            user.lname = lname;
+            user.email = email;
+            user.username = username;
+            await user.save();
+            res.status(201).json({ success: true });
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).json({ errors: [{ msg: 'Server Error' }] });
+        }
+    })
+
+// router.get("/profile/:username", middleware.isLoggedIn, function (req, res) {
+//     User.findOne({ username: req.params.username }).populate('posts').lean().exec(
+//         function (err, foundUser) {
+//             if (err && foundUser) {
+//                 console.log(err);
+//                 req.flash("error", err.message);
+//                 res.redirect("back");
+//             } else {
+//                 // follow status
+//                 var status = false;
+//                 for (let follow of req.user.follow) {
+//                     if (follow == foundUser._id)
+//                         status = true;
+//                 }
+//                 var posts = [];
+//                 //post in order of time
+//                 for (let i = foundUser.posts.length - 1; i >= 0; i--) {
+//                     posts.push(foundUser.posts[i]);
+//                 }
+//                 foundUser.posts = posts;
+
+//                 //pagination
+//                 var perPage = 6;
+//                 var pageQuery = parseInt(req.query.page);
+//                 var pageNumber = pageQuery ? pageQuery : 1;
+//                 var userPostArr = [];
+//                 var count = Math.ceil(foundUser.posts.length / perPage);
+//                 if (foundUser.posts.length > 6) {
+//                     var loopIndex = ((pageNumber - 1) * 6);
+//                     for (let i = loopIndex; i <= loopIndex + 5; i++) {
+//                         if (!foundUser.posts[i])
+//                             break;
+//                         userPostArr.push(foundUser.posts[i]);
+//                     }
+//                     foundUser.posts = userPostArr;
+//                 }
+//                 const data = { user: foundUser, userId: req.user._id, following: status, User: req.user, current: pageNumber, pages: count };
+//                 console.log(data);
+//                 res.render("profile", data);
+//             }
+//         }
+//     );
+// });
 
 //profile edit
-router.get("/profile/:username/edit", middleware.profileOwnership, function (req, res) {
-    User.findOne({ username: req.params.username }, function (err, user) {
-        if (err) {
-            console.log(err);
-            req.flash("error", err.message);
-            res.redirect("back");
-        } else {
-            res.render("profileEdit", { user: user, User: req.user });
-        }
-    });
-});
+// router.get("/profile/:username/edit", middleware.profileOwnership, function (req, res) {
+//     User.findOne({ username: req.params.username }, function (err, user) {
+//         if (err) {
+//             console.log(err);
+//             req.flash("error", err.message);
+//             res.redirect("back");
+//         } else {
+//             res.render("profileEdit", { user: user, User: req.user });
+//         }
+//     });
+// });
 
 //profile edit post
 router.put("/profile/:username", upload.single('image'), function (req, res) {

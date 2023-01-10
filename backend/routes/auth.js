@@ -4,9 +4,12 @@ var passport = require("passport");
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { check, validationResult } = require('express-validator');
+require('dotenv').config()
 
 const auth = require('../middleware/auth');
 var User = require("../models/user");
+const expiresIn = process.env.ENVIRONMENT === 'dev' ? '10h' : '1h';
+console.log(expiresIn);
 
 
 //signup
@@ -71,7 +74,7 @@ router.post("/signup", [
         return res.status(400).json({ errors: [{ msg: 'Email already exists' }] })
     }
     const isUsernameMatch = await User.findOne({ username }).count() > 0;
-    console.log(isUsernameMatch);
+    // console.log(isUsernameMatch);
     if (isUsernameMatch) {
         return res.status(400).json({ errors: [{ msg: 'Username already exists' }] })
     }
@@ -86,10 +89,10 @@ router.post("/signup", [
         //Generate token
         const payload = {
             user: {
-                id: user.id
+                id: user.id,
+                username
             }
         }
-        const expiresIn = process.env.JWTSECRET === 'dev' ? '3600000' : '3600';
         jwt.sign(
             payload,
             process.env.JWTSECRET,
@@ -143,11 +146,11 @@ router.post('/login', [
         //Generate token
         const payload = {
             user: {
-                id: user.id
+                id: user.id,
+                username
             }
         }
-        const expiresIn = process.env.ENVIRONMENT === 'dev' ? '10h' : '1h';
-        console.log(expiresIn);
+        // console.log(expiresIn);
         jwt.sign(
             payload,
             process.env.JWTSECRET,

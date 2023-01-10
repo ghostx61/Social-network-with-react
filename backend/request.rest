@@ -1,3 +1,7 @@
+###======   Variables  ============
+@authToken = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjNiZDU1MjQyOTViMmE5YjFjNjBiMjVkIiwidXNlcm5hbWUiOiJ0ZXN0MSJ9LCJpYXQiOjE2NzMzNTg4MTAsImV4cCI6MTY3MzM5NDgxMH0.ZRlA4-zRlO3dY3Pt2SrpL8AGcV_jGxUoedgfVgD-RlY
+
+
 ###======   Testing  ============
 ###home api(for testing)
 GET http://localhost:3100/api/name HTTP/1.1
@@ -20,10 +24,10 @@ POST http://localhost:3100/api/auth/signup HTTP/1.1
 Content-Type: application/json
 
 {
-    "fname": "Test5",
-    "lname": "Lname5",
-    "email": "test7@test.com",
-    "username": "test7",
+    "fname": "Test",
+    "lname": "Lname",
+    "email": "test123@test.com",
+    "username": "test123",
     "password": "testing"
 }
 
@@ -32,7 +36,44 @@ POST http://localhost:3100/api/auth/login HTTP/1.1
 Content-Type: application/json
 
 {
-    "username": "test",
+    "username": "test1",
     "password": "testing"
 
 }
+
+###======   Profile Routes  ============
+###Get user profile
+GET http://localhost:3100/api/profile/test1 HTTP/1.1
+Authorization: {{authToken}}
+
+###Get user profile
+POST http://localhost:3100/api/profile/new HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjNiNjllMTE0ZDFiYmJhMzc4ZmFkYTUzIn0sImlhdCI6MTY3MzM1MDc2NSwiZXhwIjoxNjczMzU0MzY1fQ.eH39cL84XGH6T9NQhJtVgh08N2heQK6SMYb-XnGMJpY
+
+###Edit user profile
+PUT http://localhost:3100/api/profile/edit HTTP/1.1
+Content-Type: application/json
+Authorization: {{authToken}}
+
+{
+    "fname": "Test change",
+    "lname": "Lname change",
+    "email": "test12@test.com",
+    "username":"test12"
+}
+
+###======   Post Routes  ============
+###Create new post
+POST http://localhost:3100/api/post/new HTTP/1.1
+Content-Type: application/json
+Authorization: {{authToken}}
+
+{
+    "text": "Post 2 is"
+}
+###Get post
+GET http://localhost:3100/api/post/test HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjNiNjllMTE0ZDFiYmJhMzc4ZmFkYTUzIn0sImlhdCI6MTY3MzM1MDc2NSwiZXhwIjoxNjczMzU0MzY1fQ.eH39cL84XGH6T9NQhJtVgh08N2heQK6SMYb-XnGMJpY
+
+

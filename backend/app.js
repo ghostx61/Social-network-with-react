@@ -76,9 +76,9 @@ app.use(function (req, res, next) {
   next();
 });
 
-app.use("/api", profileRoutes);
+app.use("/api/profile", profileRoutes);
 app.use("/api/auth", authRoutes);
-app.use("/api", postRoutes);
+app.use("/api/post", postRoutes);
 app.use("/api", indexRoutes);
 app.use("/api", commentRoutes);
 

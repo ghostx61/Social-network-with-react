@@ -24,15 +24,30 @@ var UserSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    password: String,
-    posts: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Post"
-        }
-    ],
+    password: {
+        type: String,
+        select: false,
+        required: true
+    },
+    // posts: [
+    //     {
+    //         type: mongoose.Schema.Types.ObjectId,
+    //         ref: "Post"
+    //     }
+    // ],
     follow: [String],
     followers: [String]
+}, {
+    toJSON: { virtuals: true },     // for reverse populate
+    toObject: { virtuals: true },   // for reverse populate
 });
+
+// populate viruals (reverse populate)
+UserSchema.virtual('post', {
+    ref: 'Post',
+    localField: '_id',
+    foreignField: 'user'
+});
+
 UserSchema.plugin(passportLocalMongoose);
 module.exports = mongoose.model("User", UserSchema);
