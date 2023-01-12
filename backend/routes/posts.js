@@ -31,36 +31,40 @@ var Comment = require("../models/comment");
 var middleware = require("../middleware");
 
 //new
-// POST  | Create new post  | /api/post/new
-router.get('/test',
+// GET  | Get post by id  | /api/post/new
+router.get('/:postId',
     auth,
     async (req, res) => {
         try {
-            const post = await Post.findById("63b6a20ca4b8b8b9bd59ea11")
-                .populate('user');
+            const post = await Post.findById(req.params.postId)
+                .populate({
+                    path: 'user',
+                    select: 'username email'
+                }).populate('comment');
             console.log(post)
             res.json(post);
         } catch (err) {
             console.log(err.message);
-            return res.send('error');
+            return res.send({ errors: [{ msg: 'Server Error' }] });
         }
     });
 
 // POST  | Create new post  | /api/post/new
 router.post('/new', auth, async (req, res) => {
-    console.log(req.body);
-    console.log(req.user);
+    // console.log(req.body);
+    // console.log(req.user);
     try {
         const newPost = new Post({
             text: req.body.text,
-            user: req.user.id
+            user: req.user.id,
+            post: req.body.postId
         });
         await newPost.save();
         return res.send('post saved');
     } catch (err) {
         console.error(err.message);
+        return res.send({ errors: [{ msg: 'Server Error' }] });
     }
-    res.send('new post from /post');
 })
 
 

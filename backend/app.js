@@ -80,7 +80,7 @@ app.use("/api/profile", profileRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/post", postRoutes);
 app.use("/api", indexRoutes);
-app.use("/api", commentRoutes);
+app.use("/api/comment", commentRoutes);
 
 // for testing
 app.get('/api/name', (req, res) => {

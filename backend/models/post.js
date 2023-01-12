@@ -6,26 +6,15 @@ const PostSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }
+}, {
+    toJSON: { virtuals: true },     // for reverse populate
+    toObject: { virtuals: true },   // for reverse populate
 });
-// var PostSchema = new mongoose.Schema({
-//     text: String,
-//     image: String,
-//     imageId: String,
-//     author:{
-//         id:{
-//             type: mongoose.Schema.Types.ObjectId,
-//             ref : "User"
-//         },
-//         username: String,
-//     },
-//     likes: [String],
-//     comments:
-//     [
-//         {
-//             type: mongoose.Schema.Types.ObjectId,
-//             ref : "Comment"
-//         }
-//     ],
-//     createdAt: {type:Date, default:Date.now}
-// });
+
+// populate viruals (reverse populate)
+PostSchema.virtual('comment', {
+    ref: 'Comment',
+    localField: '_id',
+    foreignField: 'post'
+});
 module.exports = mongoose.model("Post", PostSchema);
