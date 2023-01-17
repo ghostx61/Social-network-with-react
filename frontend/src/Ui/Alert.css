@@ -1,0 +1,39 @@
+.alert-danger {
+  min-width: 500px;
+  position: absolute;
+  /* margin: 30px auto 0 auto; */
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  top: 20px;
+  -webkit-box-shadow: 10px 11px 22px -8px rgba(0, 0, 0, 0.75);
+  -moz-box-shadow: 10px 11px 22px -8px rgba(0, 0, 0, 0.75);
+  box-shadow: 10px 11px 22px -8px rgba(0, 0, 0, 0.75);
+}
+.progress {
+  height: 5px;
+  position: absolute;
+  bottom: -1px;
+  width: 100%;
+  left: 0px;
+  background-color: unset;
+}
+.progress-bar {
+  /* background-color: #b02a37; */
+  background-color: #f06a77;
+}
+
+.progress-bar-animation {
+  animation-name: progress-bar-width;
+  animation-duration: 4s;
+  animation-timing-function: linear;
+}
+/* progress bar animation  */
+@keyframes progress-bar-width {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}

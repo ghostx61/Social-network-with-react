@@ -4,6 +4,7 @@
   border: 1px solid rgba(0, 0, 0, 0.125);
   border-radius: 0.25rem;
   margin: auto;
+  margin-top: 50px;
   padding: 1.25rem;
 }
 
@@ -20,7 +21,6 @@
   margin: 0;
   text-align: center;
 }
-
 .form-class {
   margin-top: 100px;
 }
@@ -28,7 +28,6 @@
 .form-sub {
   margin-top: 30px;
 }
-
 .form-control {
   display: block;
   width: 100%;

@@ -29,6 +29,7 @@ var UserSchema = new mongoose.Schema({
         select: false,
         required: true
     },
+    createdAt: { type: Date, default: Date.now },
     // posts: [
     //     {
     //         type: mongoose.Schema.Types.ObjectId,

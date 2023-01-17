@@ -5,7 +5,8 @@ const PostSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
-    }
+    },
+    createdAt: { type: Date, default: Date.now }
 }, {
     toJSON: { virtuals: true },     // for reverse populate
     toObject: { virtuals: true },   // for reverse populate

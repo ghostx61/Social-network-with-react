@@ -26,8 +26,8 @@ Content-Type: application/json
 {
     "fname": "Test",
     "lname": "Lname",
-    "email": "test1@test.com",
-    "username": "test1",
+    "email": "test123@test.com",
+    "username": "test123",
     "password": "testing"
 }
 
@@ -36,7 +36,7 @@ POST http://localhost:3100/api/auth/login HTTP/1.1
 Content-Type: application/json
 
 {
-    "username": "test1",
+    "username": "test123",
     "password": "testing"
 
 }
