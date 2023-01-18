@@ -7,9 +7,6 @@
                         <div class="card-body">
                                 <div class="row">
                                         <div class="col-sm-3">
-                                                <!-- <img src="<%= user.image %>" alt="... "
-                                                     onerror=this.src="https://www.searchpng.com/wp-content/uploads/2019/02/Deafult-Profile-Pitcher.png"
-                                                     class="img-thumbnail img-fluid profilePic">  -->
                                         </div>
                                         <div class="col-sm-9">
                                                 <% if(!(user._id.equals(userId))){ %>
@@ -189,12 +186,6 @@
                                                                                 <h6 class="mb-0">
                                                                                         <a class="card-title link"
                                                                                            href="/profile/<%=user.posts[i].author.username%>">
-                                                                                                <!-- <img
-                                                                                                     src="<%= user.image %>"
-                                                                                                     class="img-thumbnail rounded-circle postImg"
-                                                                                                     onerror=this.src='https://www.pngitem.com/pimgs/m/35-350426_profile-icon-png-default-profile-picture-png-transparent.png'>
-                                                                                                <%=user.posts[i].author.username
-                                                                                                                                 %> -->
                                                                                         </a>
                                                                                 </h6>
                                                                                 <p class="card-text">
@@ -203,65 +194,58 @@
 
                                                         </div>
                                                         <%if(user.posts[i].image!==""){ %>
-                                                                <img src="<%= user.posts[i].image %>"
-                                                                     class="card-img-top" alt="...">
-                                                                <%} %>
-                                                                        <div class="card-body pb-0 px-2">
-                                                                                <% var status=false; %>
-                                                                                        <% for(let l of
-                                                                                           user.posts[i].likes){ %>
-                                                                                                <% if(l==userId){ %>
-                                                                                                        <% status=true;
-                                                                                                           %>
-                                                                                                                <% break;
-                                                                                                                   %>
+                                                                <div class="card-body pb-0 px-2">
+                                                                        <% var status=false; %>
+                                                                                <% for(let l of user.posts[i].likes){ %>
+                                                                                        <% if(l==userId){ %>
+                                                                                                <% status=true; %>
+                                                                                                        <% break; %>
+                                                                                                                <% } %>
                                                                                                                         <% }
                                                                                                                            %>
-                                                                                                                                <% }
+                                                                                                                                <% if(status){
                                                                                                                                    %>
-                                                                                                                                        <% if(status){
+                                                                                                                                        <a href="/post/<%= user.posts[i]._id%>/unlike"
+                                                                                                                                           class="likeBtn"><i
+                                                                                                                                                   class="fas fa-heart fa-2x"></i></a>
+                                                                                                                                        <% }else{
                                                                                                                                            %>
-                                                                                                                                                <a href="/post/<%= user.posts[i]._id%>/unlike"
+                                                                                                                                                <a href="/post/<%= user.posts[i]._id%>/like"
                                                                                                                                                    class="likeBtn"><i
-                                                                                                                                                           class="fas fa-heart fa-2x"></i></a>
-                                                                                                                                                <% }else{
+                                                                                                                                                           class="far fa-heart fa-2x"></i></a>
+                                                                                                                                                <% }
                                                                                                                                                    %>
-                                                                                                                                                        <a href="/post/<%= user.posts[i]._id%>/like"
-                                                                                                                                                           class="likeBtn"><i
-                                                                                                                                                                   class="far fa-heart fa-2x"></i></a>
-                                                                                                                                                        <% }
-                                                                                                                                                           %>
-                                                                                                                                                                <a
-                                                                                                                                                                   href="/post/<%= user.posts[i]._id%>/comments"><i
-                                                                                                                                                                           class="far fa-comment-alt fa-2x"></i></a>
+                                                                                                                                                        <a
+                                                                                                                                                           href="/post/<%= user.posts[i]._id%>/comments"><i
+                                                                                                                                                                   class="far fa-comment-alt fa-2x"></i></a>
+                                                                                                                                                        <div
+                                                                                                                                                             class="row">
                                                                                                                                                                 <div
-                                                                                                                                                                     class="row">
-                                                                                                                                                                        <div
-                                                                                                                                                                             class="col-7 pr-0">
-                                                                                                                                                                                <p
-                                                                                                                                                                                   class="count">
-                                                                                                                                                                                        <span
-                                                                                                                                                                                              class="likeCount">
-                                                                                                                                                                                                <%= user.posts[i].likes.length
-                                                                                                                                                                                                    %>
-                                                                                                                                                                                        </span>
-                                                                                                                                                                                        likes
-                                                                                                                                                                                        <span>
-                                                                                                                                                                                                <%= user.posts[i].comments.length
-                                                                                                                                                                                                    %>
-                                                                                                                                                                                        </span>
-                                                                                                                                                                                        comments
-                                                                                                                                                                                </p>
-                                                                                                                                                                        </div>
-                                                                                                                                                                        <div
-                                                                                                                                                                             class="col-5 pl-1">
-                                                                                                                                                                                <p
-                                                                                                                                                                                   class="float-right time">
-                                                                                                                                                                                        <%=moment(user.posts[i].createdAt).fromNow()%>
-                                                                                                                                                                                </p>
-                                                                                                                                                                        </div>
+                                                                                                                                                                     class="col-7 pr-0">
+                                                                                                                                                                        <p
+                                                                                                                                                                           class="count">
+                                                                                                                                                                                <span
+                                                                                                                                                                                      class="likeCount">
+                                                                                                                                                                                        <%= user.posts[i].likes.length
+                                                                                                                                                                                            %>
+                                                                                                                                                                                </span>
+                                                                                                                                                                                likes
+                                                                                                                                                                                <span>
+                                                                                                                                                                                        <%= user.posts[i].comments.length
+                                                                                                                                                                                            %>
+                                                                                                                                                                                </span>
+                                                                                                                                                                                comments
+                                                                                                                                                                        </p>
                                                                                                                                                                 </div>
-                                                                        </div>
+                                                                                                                                                                <div
+                                                                                                                                                                     class="col-5 pl-1">
+                                                                                                                                                                        <p
+                                                                                                                                                                           class="float-right time">
+                                                                                                                                                                                <%=moment(user.posts[i].createdAt).fromNow()%>
+                                                                                                                                                                        </p>
+                                                                                                                                                                </div>
+                                                                                                                                                        </div>
+                                                                </div>
                                                 </div>
                                                 <br>
                                                 <%} %>
