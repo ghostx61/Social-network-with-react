@@ -1,53 +1,65 @@
 import { Fragment, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import Input from '../../Ui/Input';
 import Alert from '../../Ui/Alert';
 import useTimeout from '../../hooks/use-timeout';
 import classes from "./LoginPage.module.css";
 import sendRequest from '../../helper/sendRequest';
+import useAuth from '../../hooks/use-Auth';
+import useInput from '../../hooks/use-input';
+
+
 const LoginPage = () => {
-    const usernameInputRef = useRef();
-    const passwordInputRef = useRef();
-
-    const [isUsernameValid, setIsUsernameVaild] = useState(true);
-    const [isPasswordValid, setIsPasswordVaild] = useState(true);
     const [isAlert, setIsAlert] = useTimeout(null, 4);
+    const { userLogin } = useAuth();
 
-    const usernameFocusHandler = () => {
-        setIsUsernameVaild(true);
-    }
-    const passwordFocusHandler = () => {
-        setIsPasswordVaild(true);
-    }
+    const [
+        usernameInput,
+        setUsernameInput,
+        usernameInputChangeHandler,
+        isUsernameValid,
+        setIsUsernameVaild,
+        checkUsernameValid,
+        usernameFocusHandler
+    ] = useInput();
+    const [
+        passwordInput,
+        setPasswordInput,
+        passwordInputChangeHandler,
+        isPasswordValid,
+        setIsPasswordVaild,
+        checkPasswordValid,
+        passwordFocusHandler
+    ] = useInput();
+
+
     const submitHandler = async (event) => {
         event.preventDefault();
-        const enteredUsername = usernameInputRef.current.value;
-        const enteredPassword = passwordInputRef.current.value;
-        const usernameValid = enteredUsername.length > 5;
-        const passwordVaild = enteredPassword.length > 5;
         // validate fields
-        if (!usernameValid) {
+        let isFormValid = true;
+        if (usernameInput.length <= 5) {
             setIsUsernameVaild(false);
+            isFormValid = false;
         }
-        if (!passwordVaild) {
+        if (passwordInput.length <= 5) {
             setIsPasswordVaild(false);
+            isFormValid = false;
         }
-        const isFormVaild = usernameValid && passwordVaild;
-        if (!isFormVaild) return;
-        // console.log('form valid');
+        if (!isFormValid) return;
 
-        const body = { username: enteredUsername, password: enteredPassword };
+        const body = { username: usernameInput, password: passwordInput };
         const [data, error] = await sendRequest({
             method: 'POST',
             url: '/auth/login',
             body
         });
         if (error) {
-            // console.log('error');
             setIsAlert(error);
             return;
         }
         console.log(data);
+        //login user
+        userLogin(data);
     }
     return (
         <Fragment>
@@ -57,25 +69,27 @@ const LoginPage = () => {
                 <form onSubmit={submitHandler}>
                     {/* Username  */}
                     <Input
-                        ref={usernameInputRef}
-                        title="Username"
+                        title="Username*"
                         type='text'
                         id='username'
                         placeholder="john345"
                         isValid={isUsernameValid}
-                        invalidMessage="Username should be 6 or more characters"
+                        invalidMessage="Username should be more than 6 characters"
                         focus={usernameFocusHandler}
+                        value={usernameInput}
+                        change={usernameInputChangeHandler}
                     />
                     {/* Password  */}
                     <Input
-                        ref={passwordInputRef}
-                        title="Password"
+                        title="Password*"
                         type='password'
                         id='password'
-                        placeholder="testing@123#"
+                        placeholder=""
                         isValid={isPasswordValid}
-                        invalidMessage="Password should be 6 or more characters"
+                        invalidMessage="Password should be more than 6 characters"
                         focus={passwordFocusHandler}
+                        value={passwordInput}
+                        change={passwordInputChangeHandler}
                     />
                     <button className={classes.button}>Log in</button>
                 </form>

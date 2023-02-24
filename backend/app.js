@@ -39,8 +39,8 @@ global.document = document;
 var $ = require("jquery")(window);
 
 var bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.json({ extended: false }));
+app.use(express.json({ extended: false, limit: '50mb' }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
 var cloudinary = require('cloudinary');
 cloudinary.config({

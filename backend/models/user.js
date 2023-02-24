@@ -14,8 +14,7 @@ var UserSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    image: String,
-    imageId: String,
+    profileImg: String,
     dob: Date,
     bio: String,
     address: String,

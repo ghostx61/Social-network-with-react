@@ -1,5 +1,5 @@
 ###======   Variables  ============
-@authToken = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjNiZDgxMTc5ZWM4ODJhMDM1MzY3MGFlIiwidXNlcm5hbWUiOiJ0ZXN0MSJ9LCJpYXQiOjE2NzM1Mzg4OTYsImV4cCI6MTY3MzU3NDg5Nn0.tOk8uyOOUXcw-w3_4-3B3WiDogbieYwc0yq5OmsY2M0
+@authToken = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjNjNjg2ODJjZDEzZDNlMTQ1NzBmYTI0IiwidXNlcm5hbWUiOiJuaW5hZDEyMyJ9LCJpYXQiOjE2NzUyNDY5MzIsImV4cCI6MTY3NTI4MjkzMn0.a3Aapwtm724hJBCd75SbIuaIKNNhSE8JAt2OJitVw48
 
 
 ###======   Testing  ============
@@ -24,10 +24,10 @@ POST http://localhost:3100/api/auth/signup HTTP/1.1
 Content-Type: application/json
 
 {
-    "fname": "Test",
-    "lname": "Lname",
-    "email": "test123@test.com",
-    "username": "test123",
+    "fname": "jOey",
+    "lname": "tibiaNi",
+    "email": "test4@test.com",
+    "username": "test4",
     "password": "testing"
 }
 
@@ -36,19 +36,20 @@ POST http://localhost:3100/api/auth/login HTTP/1.1
 Content-Type: application/json
 
 {
-    "username": "test123",
+    "username": "ninad123",
     "password": "testing"
 
 }
 
-###======   Profile Routes  ============
-###Get user profile
-GET http://localhost:3100/api/profile/test1 HTTP/1.1
+###verify user
+GET http://localhost:3100/api/auth/verify HTTP/1.1
 Authorization: {{authToken}}
 
+###======   Profile Routes  ============
 ###Get user profile
-POST http://localhost:3100/api/profile/new HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjNiNjllMTE0ZDFiYmJhMzc4ZmFkYTUzIn0sImlhdCI6MTY3MzM1MDc2NSwiZXhwIjoxNjczMzU0MzY1fQ.eH39cL84XGH6T9NQhJtVgh08N2heQK6SMYb-XnGMJpY
+GET http://localhost:3100/api/profile/ninad123?posts=true HTTP/1.1
+Authorization: {{authToken}}
+
 
 ###Edit user profile
 PUT http://localhost:3100/api/profile/edit HTTP/1.1
@@ -56,10 +57,22 @@ Content-Type: application/json
 Authorization: {{authToken}}
 
 {
-    "fname": "Test change",
-    "lname": "Lname change",
+    "fname": "Test0",
+    "lname": "Lname0",
     "email": "test12@test.com",
-    "username":"test12"
+    "username":"test12",
+    "password":"abc123",
+    "bio": "test test tes",
+    "dob": "test"
+}
+
+###Edit user profile
+POST http://localhost:3100/api/profile/img HTTP/1.1
+Content-Type: application/json
+Authorization: {{authToken}}
+
+{
+    "profileImg": "base64"
 }
 
 ###======   Post Routes  ============

@@ -5,21 +5,57 @@ import Input from '../../Ui/Input';
 import Alert from '../../Ui/Alert';
 import useTimeout from '../../hooks/use-timeout';
 import sendRequest from '../../helper/sendRequest';
+import useInput from '../../hooks/use-input';
+import useAuth from '../../hooks/use-Auth';
 
 const SignupPage = () => {
-    const API_URL = 'http://localhost:3100/';
-    const fnameInputRef = useRef();
-    const lnameInputRef = useRef();
-    const emailInputRef = useRef();
-    const usernameInputRef = useRef();
-    const passwordInputRef = useRef();
-
-    const [isFnameValid, setIsFnameVaild] = useState(true);
-    const [isLnameValid, setIsLnameVaild] = useState(true);
-    const [isEmailValid, setIsEmailVaild] = useState(true);
-    const [isUsernameValid, setIsUsernameVaild] = useState(true);
-    const [isPasswordValid, setIsPasswordVaild] = useState(true);
     const [isAlert, setIsAlert] = useTimeout(null, 4);
+    const { userLogin } = useAuth();
+    const [
+        fnameInput,
+        setFnameInput,
+        fnameInputChangeHandler,
+        isFnameValid,
+        setIsFnameVaild,
+        checkFnameValid,
+        fnameFocusHandler
+    ] = useInput();
+    const [
+        lnameInput,
+        setLnameInput,
+        lnameInputChangeHandler,
+        isLnameValid,
+        setIsLnameVaild,
+        checkLnameValid,
+        lnameFocusHandler
+    ] = useInput();
+    const [
+        emailInput,
+        setEmailInput,
+        emailInputChangeHandler,
+        isEmailValid,
+        setIsEmailVaild,
+        checkEmailValid,
+        emailFocusHandler
+    ] = useInput();
+    const [
+        usernameInput,
+        setUsernameInput,
+        usernameInputChangeHandler,
+        isUsernameValid,
+        setIsUsernameVaild,
+        checkUsernameValid,
+        usernameFocusHandler
+    ] = useInput();
+    const [
+        passwordInput,
+        setPasswordInput,
+        passwordInputChangeHandler,
+        isPasswordValid,
+        setIsPasswordVaild,
+        checkPasswordValid,
+        passwordFocusHandler
+    ] = useInput();
 
 
     function validateEmail(email) {
@@ -27,63 +63,41 @@ const SignupPage = () => {
         return re.test(email);
     }
 
-    const fnameFocusHandler = () => {
-        setIsFnameVaild(true);
-    }
-    const lnameFocusHandler = () => {
-        setIsLnameVaild(true);
-    }
-    const emailFocusHandler = () => {
-        setIsEmailVaild(true);
-    }
-    const usernameFocusHandler = () => {
-        setIsUsernameVaild(true);
-    }
-    const passwordFocusHandler = () => {
-        setIsPasswordVaild(true);
-    }
 
     const submitHandler = async (event) => {
         event.preventDefault();
-        const enteredFname = fnameInputRef.current.value;
-        const enteredLname = lnameInputRef.current.value;
-        const enteredEmail = emailInputRef.current.value;
-        const enteredUsername = usernameInputRef.current.value;
-        const enteredPassword = passwordInputRef.current.value;
-
-        // validate fields
-        const fnameValid = enteredFname.length > 0;
-        const lnameValid = enteredFname.length > 0;
-        const emailValid = validateEmail(enteredEmail);
-        const usernameValid = enteredUsername.length > 5;
-        const passwordValid = enteredPassword.length > 5;
-        if (!fnameValid) {
-            setIsFnameVaild(false);
-        }
-        if (!lnameValid) {
-            setIsLnameVaild(false);
-        }
-        if (!emailValid) {
-            setIsEmailVaild(false);
-        }
-        if (!usernameValid) {
-            setIsUsernameVaild(false);
-        }
-        if (!passwordValid) {
-            setIsPasswordVaild(false);
-        }
+        console.log(fnameInput);
         // check form validity
-        const isFormValid = fnameValid && lnameValid && emailValid && usernameValid && passwordValid;
+        let isFormValid = true;
+        if (fnameInput.length < 1) {
+            setIsFnameVaild(false);
+            isFormValid = false;
+        }
+        if (lnameInput.length < 1) {
+            setIsLnameVaild(false);
+            isFormValid = false;
+        }
+        if (!validateEmail(emailInput)) {
+            setIsEmailVaild(false);
+            isFormValid = false;
+        }
+        if (usernameInput.length <= 5) {
+            setIsUsernameVaild(false);
+            isFormValid = false;
+        }
+        if (passwordInput.length <= 5) {
+            setIsPasswordVaild(false);
+            isFormValid = false;
+        }
         if (!isFormValid) {
-            // console.log('invalid');
             return;
         }
         const body = {
-            fname: enteredFname,
-            lname: enteredLname,
-            email: enteredEmail,
-            username: enteredUsername,
-            password: enteredPassword
+            fname: fnameInput,
+            lname: lnameInput,
+            email: emailInput,
+            username: usernameInput,
+            password: passwordInput
         }
         const [data, error] = await sendRequest({
             method: 'POST',
@@ -96,6 +110,7 @@ const SignupPage = () => {
             return;
         }
         console.log(data);
+        userLogin(data);
     }
     return <Fragment>
         {isAlert && <Alert message={isAlert} />}
@@ -104,58 +119,63 @@ const SignupPage = () => {
             <form onSubmit={submitHandler}>
                 {/* First name  */}
                 <Input
-                    ref={fnameInputRef}
-                    title="First name"
+                    title="First name*"
                     type='text'
                     id='fname'
                     placeholder="John"
                     isValid={isFnameValid}
                     invalidMessage="First Name is required"
                     focus={fnameFocusHandler}
+                    value={fnameInput}
+                    change={fnameInputChangeHandler}
                 />
                 {/* Last name  */}
                 <Input
-                    ref={lnameInputRef}
-                    title="Last name"
+                    title="Last name*"
                     type='text'
                     id='lname'
                     placeholder="Doe"
                     isValid={isLnameValid}
                     invalidMessage="Last Name is required"
                     focus={lnameFocusHandler}
+                    value={lnameInput}
+                    change={lnameInputChangeHandler}
                 />
                 {/* Username  */}
                 <Input
-                    ref={usernameInputRef}
-                    title="Username"
+                    title="Username*"
                     type='text'
                     id='username'
                     placeholder="john345"
                     isValid={isUsernameValid}
-                    invalidMessage="Username should be 6 or more characters"
+                    invalidMessage="Username should be more than 6 characters"
                     focus={usernameFocusHandler}
+                    value={usernameInput}
+                    change={usernameInputChangeHandler}
                 />
                 {/* Email address  */}
                 <Input
-                    ref={emailInputRef}
-                    title="Email address"
+                    title="Email address*"
                     type='text'
                     id='email'
                     placeholder="john@mail.com"
                     isValid={isEmailValid}
-                    invalidMessage="Enter a valid email"
+                    invalidMessage="Enter valid email"
                     focus={emailFocusHandler}
+                    value={emailInput}
+                    change={emailInputChangeHandler}
                 />
                 {/* Password  */}
                 <Input
-                    ref={passwordInputRef}
-                    title="Password"
+                    title="Password*"
                     type='password'
                     id='password'
-                    placeholder="testing@123#"
+                    placeholder=""
                     isValid={isPasswordValid}
-                    invalidMessage="Password should be 6 or more characters"
+                    invalidMessage="Password should be more than 5 characters"
                     focus={passwordFocusHandler}
+                    value={passwordInput}
+                    change={passwordInputChangeHandler}
                 />
                 <button className={classes.button}>Sign up</button>
             </form>

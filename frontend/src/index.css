@@ -2,5 +2,17 @@ body {
   margin: 0;
   background-color: #fafafa;
   box-sizing: border-box;
-  font-family: 'Roboto', serif;
+  /* font-family: 'Roboto', serif; */
+  /* font-family: 'Slabo 27px', serif; */
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 400;
+}
+.center {
+  text-align: center;
+}
+.hide {
+  display: none;
+}
+.hidden {
+  visibility: hidden;
 }

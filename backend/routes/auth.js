@@ -66,6 +66,8 @@ router.post("/signup", [
 
     //create new user
     const { email, username, password } = req.body;
+    req.body.fname = textCapitalization(req.body.fname);
+    req.body.lname = textCapitalization(req.body.lname);
     let user = new User(req.body);
 
     //check if email and username are unique
@@ -99,7 +101,7 @@ router.post("/signup", [
             { expiresIn },
             (err, token) => {
                 if (err) throw err;
-                return res.status(201).json({ token });
+                return res.status(201).json({ token: "Bearer " + token, ...payload.user });
             }
         );
     } catch (err) {
@@ -157,7 +159,7 @@ router.post('/login', [
             { expiresIn },
             (err, token) => {
                 if (err) throw err;
-                return res.status(200).json({ token });
+                return res.status(200).json({ token: "Bearer " + token, ...payload.user });
             }
         );
     } catch (err) {
@@ -171,5 +173,15 @@ router.get("/logout", function (req, res) {
     req.logout();
     res.redirect("/login");
 });
+
+//POST |  Authenticate user |  /api/auth/verify
+router.get('/verify', auth, function (req, res) {
+    res.status(200).json({ success: true, ...req.user });
+});
+
+function textCapitalization(text) {
+    let newText = text.slice(0, 1).toUpperCase() + text.slice(1).toLowerCase();
+    return newText
+}
 
 module.exports = router;

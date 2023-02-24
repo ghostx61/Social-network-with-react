@@ -1,0 +1,43 @@
+.profile {
+  margin-top: 130px;
+}
+
+.profile-container > div {
+  padding-top: 25px;
+  text-align: center;
+}
+.profile-container > div > h5 {
+  font-weight: 700;
+}
+
+.profile-img {
+  border-radius: 50%;
+  position: absolute;
+  width: 120px;
+  top: 69px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+}
+.birthday {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.birthday > p {
+  margin: 0;
+}
+.birthday > img {
+  width: 30px;
+  height: 30px;
+  margin-right: 5px;
+}
+.join-date {
+  color: rgba(33, 37, 41, 0.75);
+  margin: 0;
+}
+
+.edit-btn {
+  width: 110px;
+  margin: 10px 10px 0 auto;
+}

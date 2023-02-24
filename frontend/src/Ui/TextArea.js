@@ -1,7 +1,6 @@
-import { forwardRef, useEffect } from 'react';
-import { useState } from 'react';
+import { forwardRef } from "react"
 
-const Input = forwardRef((props, ref) => {
+const TextArea = forwardRef((props, ref) => {
     const inputClass = `form-control ${!props.isValid ? 'is-invalid' : ''}`;
     const otherInputs = {};
     if (props.focus) {
@@ -10,12 +9,11 @@ const Input = forwardRef((props, ref) => {
     return (
         <div className="mb-3">
             <label htmlFor={props.id} className="form-label">{props.title}</label>
-            <input type={props.type} className={inputClass} id={props.id} placeholder={props.placeholder} ref={ref} {...otherInputs} value={props.value || ''} onChange={props.change || (() => { })} />
+            <textarea className={inputClass} id={props.id} rows={props.rows || 3} ref={ref} placeholder={props.placeholder} maxLength="150" value={props.value || ''} onChange={props.change || (() => { })} {...otherInputs}></textarea>
             <div id="UsernameFeedback" className="invalid-feedback">
                 {props.invalidMessage}
             </div>
         </div>
     )
 })
-
-export default Input;
+export default TextArea

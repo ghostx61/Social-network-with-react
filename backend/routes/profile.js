@@ -34,10 +34,18 @@ const checkOwner = require('../middleware/checkOwner');
 // GET  | get user profile and posts  | /api/profile/:username
 router.get("/:username", auth, async (req, res) => {
     try {
-        console.log(req.params.username);
-        const profileData = await User.findOne({ username: req.params.username })
-            .populate('post');
-        console.log(profileData);
+        console.log(req.query);
+        let profileData;
+        if (req.query.posts && req.query.posts === 'true') {
+            profileData = await User.findOne({ username: req.params.username })
+                .populate('post');
+        } else {
+            profileData = await User.findOne({ username: req.params.username });
+        }
+        if (!profileData) {
+            return res.status(404).json({ errors: [{ msg: 'Profile not found' }] })
+        }
+        // console.log(profileData);
         res.json(profileData);
     } catch (err) {
         console.log(err.message);
@@ -50,7 +58,7 @@ router.post('/new', auth, (req, res) => {
     res.send('new post');
 })
 
-// PUT | Edit user profile | /api/profile/:username/edit
+// PUT | Edit user profile | /api/profile/edit
 router.put('/edit',
     auth,
     [check('fname', 'Full name is required').isLength({ min: 1 }),
@@ -65,19 +73,43 @@ router.put('/edit',
             if (!errors.isEmpty()) {
                 return res.status(400).json({ errors: errors.array() });
             }
-            const { fname, lname, email, username } = req.body;
-            let user = await User.findById(req.user.id);
-            user.fname = fname;
-            user.lname = lname;
-            user.email = email;
-            user.username = username;
-            await user.save();
+            let updatedUser = {
+                fname: req.body.fname,
+                lname: req.body.lname,
+                username: req.body.username,
+                email: req.body.email
+            }
+            if (req.body.bio) {
+                updatedUser.bio = req.body.bio;
+            }
+            if (req.body.dob) {
+                updatedUser.dob = req.body.dob;
+            }
+            await User.findByIdAndUpdate(req.user.id, updatedUser);
             res.status(201).json({ success: true });
         } catch (err) {
             console.error(err.message);
             res.status(500).json({ errors: [{ msg: 'Server Error' }] });
         }
     })
+
+// POST  | upload profile image  | /api/profile/img
+
+router.post('/img', auth, upload.single('image'), async (req, res) => {
+    try {
+        // save image in cloudinary 
+        const newImage = req.body.newImage;
+        var result = await cloudinary.v2.uploader.upload(newImage);
+        //save image url in database
+        const updateQuery = { profileImg: result.secure_url };
+        await User.findByIdAndUpdate(req.user.id, updateQuery, { upsert: true });
+        // console.log(result);
+        return res.json({ result: result });
+    } catch (err) {
+        console.log(err);
+        // res.json()
+    }
+});
 
 // router.get("/profile/:username", middleware.isLoggedIn, function (req, res) {
 //     User.findOne({ username: req.params.username }).populate('posts').lean().exec(
