@@ -1,25 +1,39 @@
-import { Fragment, useState } from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import { Fragment, useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { NavLink, Link, useHistory } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import sendRequest from '../helper/sendRequest';
 import useAuth from '../hooks/use-Auth';
+import Modal from '../Ui/Modal';
 
 import classes from './Navbar.module.css';
+import LoadingSpinner from './LoadingSpinner';
 
 
 const Navbar = () => {
     const isAuth = useSelector(state => state.auth.isAuthenticated);
+    const authData = useSelector(state => state.auth);
+    const history = useHistory();
+
     const [navDropdownActive, setNavDropdownActive] = useState(false);
+    const [showPostModal, setShowPostModal] = useState(false);
+    const [uploadImage, setUploadImage] = useState(null);
+    const [uploadImageFile, setUploadImageFile] = useState(null);
     const { userLogout } = useAuth();
-    const userNavLinks = (
-        <Fragment>
-            <li className={classes['nav-link']}>
-                <NavLink to="/" activeClassName={classes['nav-link-active']} exact>Home</NavLink>
-            </li>
-            <li className={classes['nav-link']}>
-                <NavLink to="/profile" activeClassName={classes['nav-link-active']}>Find friends</NavLink>
-            </li>
-        </Fragment>
-    );
+    const uploadImageRef = useRef();
+    const postTextInputRef = useRef();
+    const [postTextInput, setPostTextInput] = useState('');
+    const [postBtnEnable, setPostBtnEnable] = useState(false);
+    const [isPostUploading, setIsPostUploading] = useState(false);
+    const username = authData.username;
+    // console.log(authData);
+    useEffect(() => {
+        if (postTextInput.length > 0 || uploadImage) {
+            setPostBtnEnable(true);
+        } else {
+            setPostBtnEnable(false);
+        }
+    }, [postTextInput, uploadImage])
 
     const dropdownHandler = () => {
         setNavDropdownActive(state => !state);
@@ -31,35 +45,170 @@ const Navbar = () => {
     const dropdownClickHandler = () => {
         setNavDropdownActive(false);
     }
+    const showPostModalHandler = () => {
+        setShowPostModal(true);
+    }
+    const hidePostModalHandler = () => {
+        setShowPostModal(false);
+        setPostTextInput('');
+        removeImageHandler();
+    }
+
+    const addImageHandler = (event) => {
+        if (event.target.files && event.target.files[0]) {
+            console.log(event.target.value);
+            console.log(event.target.files);
+            setUploadImageFile(event.target.files[0]);
+            setUploadImage(URL.createObjectURL(event.target.files[0]));
+            // postCheckHandler();
+        }
+    }
+    const removeImageHandler = () => {
+        setUploadImage(null);
+        setUploadImageFile(null);
+        uploadImageRef.current.value = "";
+        // postCheckHandler();
+    }
+    const postTextChangeHandler = (event) => {
+        setPostTextInput(event.target.value);
+        // postCheckHandler();
+    }
+    // const postCheckHandler = () => {
+    //     const enteredText = postTextInput;
+    //     const uploadedPhoto = uploadImage;
+    //     console.log(enteredText.length  )
+    //     if (enteredText.length > 0 || uploadedPhoto) {
+    //         setPostBtnEnable(true);
+    //     } else {
+    //         setPostBtnEnable(false);
+    //     }
+    // }
+    const postSubmitHandler = async (event) => {
+        setIsPostUploading(true);
+        event.preventDefault();
+        const enteredText = postTextInput;
+        const uploadedPhoto = uploadImageFile;
+        console.log(enteredText, uploadedPhoto);
+        if (postBtnEnable) {
+            const body = new FormData();
+            body.append('photo1', uploadedPhoto);
+            body.append('text', enteredText);
+            // const body = {
+            //     text: enteredText,
+            //     photo: uploadedPhoto
+            // }
+            //send data
+            try {
+                const [data, error] = await sendRequest({
+                    method: 'POST',
+                    url: '/post/new',
+                    body: body,
+                    noJson: true,
+                    headers: {
+                        // 'Content-Type': 'application/json',
+                        'Authorization': authData.token
+                    }
+                });
+                if (error) {
+                    console.log(error.message);
+                    return;
+                }
+                console.log(data);
+                // setProfileImg(data.result.secure_url);
+                setShowPostModal(false);
+                history.push('/');
+                setIsPostUploading(false);
+            } catch (e) {
+                console.log(e.message);
+            }
+        }
+    }
+
+
+    const userNavLinks = (
+        <Fragment>
+            <li className={classes['nav-link']}>
+                <NavLink to="/" activeClassName={classes['nav-link-active']} exact>Home</NavLink>
+            </li>
+            <li className={classes['nav-link']}>
+                <NavLink to="/find-friends" activeClassName={classes['nav-link-active']}>Find friends</NavLink>
+            </li>
+            <li className={classes['nav-link']}>
+                <p className={classes['create-link']} onClick={showPostModalHandler}>Create</p>
+            </li>
+        </Fragment>
+    );
 
     return (
-        <nav className={classes['navbar-new']}>
-            <ul>
-                <li className={classes['nav-logo']}>
-                    <Link to="/"><img src={`${process.env.PUBLIC_URL}/camera.png`} /> Social Network</Link>
-                </li>
-                {isAuth && userNavLinks}
-            </ul>
-            <ul className={classes['nav-right']}>
-                <li>
-                    <input type="text" placeholder="Search" className={classes['nav-search']} />
-                </li>
-                <li className={classes['profile-img']} onClick={dropdownHandler}>
-                    {/* <Link to="/"> */}
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/LEGO_logo.svg/2048px-LEGO_logo.svg.png" />
-                    {/* </Link> */}
-                </li>
-            </ul>
-            {navDropdownActive && <div className={`card ${classes['nav-dropdown']}`}>
-                <ul className="list-group list-group-flush" onClick={dropdownClickHandler}>
-                    <li className={`list-group-item ${classes['nav-dropdown-item']}`}>
-                        <Link to="/profile">ninad123</Link>
+        <Fragment>
+            {
+                showPostModal && createPortal(
+                    <Modal title="Create post" close={hidePostModalHandler}>
+                        <form onSubmit={postSubmitHandler}>
+                            <div className={classes['modal-container']}>
+                                <div className="mb-3">
+                                    <textarea className="form-control" id={classes.postTextArea} rows="3" ref={postTextInputRef} value={postTextInput} onChange={postTextChangeHandler}></textarea>
+                                </div>
+                                {!uploadImage && <label htmlFor={classes['upload-input']} className={classes['upload-label']}>
+
+                                    <div className={`card ${classes['upload-card']}`}>
+                                        <p>Add photo</p>
+                                    </div>
+                                </label>}
+                                {uploadImage && <div className={`card ${classes['preview-image-container']}`} onClick={removeImageHandler}>
+                                    <div className={classes['img-close-btn']}>
+                                        <button type="button" className="btn-close"></button>
+                                    </div>
+                                    <img src={uploadImage} alt="preview" />
+                                </div>}
+                                <input type="file" name="photo1" accept="image/png, image/gif, image/jpeg" id={classes['upload-input']} onChange={addImageHandler} ref={uploadImageRef} />
+                            </div>
+                            {!isPostUploading &&
+                                <div className={`d-grid gap-2 ${classes['post-btn-container']}`}>
+                                    <button className="btn btn-primary" type="submit" disabled={!postBtnEnable}>Post</button>
+                                </div>
+                            }
+                            {isPostUploading &&
+                                <div className={classes['spinner-container']}>
+                                    <LoadingSpinner />
+                                </div>
+                            }
+                        </form>
+                        {/* </div> */}
+                    </Modal>,
+                    document.getElementById('modal-root'))
+            }
+            <nav className={classes['navbar-new']}>
+                <ul>
+                    <li className={classes['nav-logo']}>
+                        <Link to="/"><img src={`${process.env.PUBLIC_URL}/camera.png`} /> Social Network</Link>
                     </li>
-                    <li className={`list-group-item ${classes['nav-dropdown-item']}`} onClick={logoutHandler}>Logout</li>
-                    {/* <li className="list-group-item">A third item</li> */}
+                    {isAuth && userNavLinks}
                 </ul>
-            </div>}
-        </nav>
+                <ul className={classes['nav-right']}>
+                    <li>
+                        <input type="text" placeholder="Search" className={classes['nav-search']} />
+                    </li>
+                    <li className={classes['profile-img']} onClick={dropdownHandler}>
+                        {/* <Link to="/"> */}
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/LEGO_logo.svg/2048px-LEGO_logo.svg.png" />
+                        {/* </Link> */}
+                    </li>
+                </ul>
+                {navDropdownActive && <div className={`card ${classes['nav-dropdown']}`}>
+                    <ul className="list-group list-group-flush" onClick={dropdownClickHandler}>
+                        <li className={`list-group-item ${classes['nav-dropdown-item']}`}>
+                            <Link to={`/profile/${username}`}>{username}</Link>
+                        </li>
+                        {/* <li className={`list-group-item ${classes['nav-dropdown-item']}`}>
+                            <Link to={`/profile/sagar123/edit`}>edit</Link>
+                        </li> */}
+                        <li className={`list-group-item ${classes['nav-dropdown-item']}`} onClick={logoutHandler}>Logout</li>
+                        {/* <li className="list-group-item">A third item</li> */}
+                    </ul>
+                </div>}
+            </nav>
+        </Fragment>
     );
 }
 

@@ -12,6 +12,8 @@ import { useSelector } from 'react-redux';
 import LoadingSpinner from './Ui/LoadingSpinner';
 import EditProfilePage from './pages/profile/EditProfilePage';
 import ImageCropper from './Ui/image-crop/ImageCropper';
+import ErrorPage from './pages/error/ErrorPage';
+import FindFriendsPage from './pages/find-friends/FindFriendsPage';
 
 
 function App() {
@@ -61,14 +63,20 @@ function App() {
       <Route path='/' exact>
         <HomePage />
       </Route>
-      <Route path='/profile' exact>
+      <Route path='/profile/:username' exact>
         <ProfilePage />
       </Route>
-      <Route path='/profile/edit' exact>
+      <Route path='/profile/:username/edit' exact>
         <EditProfilePage />
+      </Route>
+      <Route path='/find-friends' exact>
+        <FindFriendsPage />
       </Route>
       <Route path='/crop' exact>
         <ImageCropper />
+      </Route>
+      <Route path='/error' exact>
+        <ErrorPage />
       </Route>
       <Route path='*'>
         <Redirect to='/' />

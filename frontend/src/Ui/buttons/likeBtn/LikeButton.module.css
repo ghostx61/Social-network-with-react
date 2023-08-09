@@ -1,0 +1,8 @@
+.like-btn {
+  margin-right: 20px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.filled-like {
+  fill: #ff3040;
+}

@@ -1,0 +1,33 @@
+.post-modal {
+  z-index: 100;
+  max-width: 500px;
+  top: 18vh;
+  left: 50%;
+  width: 90%;
+  transform: translateX(-50%);
+  position: fixed;
+}
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 99;
+  background-color: rgba(0, 0, 0, 0.75);
+}
+
+.card-title-container {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+.title {
+  text-align: center;
+  margin: 8px 5px;
+  font-weight: 600;
+  font-size: 1.5rem;
+}
+.close-btn {
+  position: fixed;
+  right: 13px;
+  top: 10px;
+}

@@ -7,6 +7,7 @@
   position: fixed;
   width: 100%;
   top: 0;
+  z-index: 5;
 }
 
 .navbar-new > ul {
@@ -21,14 +22,19 @@
   display: flex;
   align-items: center;
 }
-.navbar-new > ul > li > a {
+.navbar-new > ul > li > a,
+.create-link {
   text-decoration: none;
   font-size: 18px;
+  cursor: pointer;
+  margin: 0;
 }
-.navbar-new > ul > .nav-link > a {
+.navbar-new > ul > .nav-link > a,
+.create-link {
   color: rgba(248, 249, 250, 0.65);
 }
-.navbar-new > ul > .nav-link:hover > a {
+.navbar-new > ul > .nav-link:hover > a,
+.create-link {
   color: rgba(248, 249, 250, 0.8);
 }
 .navbar-new > ul > .nav-link > a.nav-link-active {
@@ -113,3 +119,87 @@
   text-decoration: none;
   color: black;
 }
+
+/* Modal  */
+.modal-container {
+  max-height: 500px;
+  overflow-y: scroll;
+}
+#postTextArea {
+  resize: none;
+}
+
+.upload-image-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 40px;
+  cursor: pointer;
+}
+.upload-image-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.upload-image-btn p {
+  margin: 0;
+}
+.upload-image-btn label {
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+#upload-input {
+  display: none;
+}
+
+.upload-label {
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+.upload-card {
+  display: flex;
+  height: 50px;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.03);
+}
+.upload-card:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+.upload-card > p {
+  margin: 0;
+  font-weight: 600;
+}
+
+.preview-image-container {
+  overflow: hidden;
+  position: relative;
+}
+.post-btn-container {
+  margin-top: 15px;
+}
+.img-close-btn {
+  position: absolute;
+  background-color: white;
+  width: 39px;
+  height: 39px;
+  border-radius: 50%;
+  top: 10px;
+  right: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.img-close-btn:hover {
+  background-color: #dee2e6;
+}
+
+.spinner-container {
+  text-align: center;
+}
+/* .preview-image-container > img {
+  max-height: 200px;
+} */

@@ -1,0 +1,26 @@
+.main {
+  display: flex;
+}
+.left-container {
+  display: flex;
+  margin-right: auto;
+  gap: 5px;
+}
+.content {
+}
+
+.img-container {
+  display: flex;
+  align-items: center;
+}
+.img-container > img {
+  width: 44px;
+  border-radius: 50%;
+}
+.name {
+  margin-bottom: 1px;
+}
+.username {
+  color: rgba(33, 37, 41, 0.75);
+  margin-bottom: 0;
+}

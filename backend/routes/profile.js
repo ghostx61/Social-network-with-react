@@ -30,22 +30,33 @@ var Comment = require("../models/comment");
 var middleware = require("../middleware");
 const auth = require('../middleware/auth');
 const checkOwner = require('../middleware/checkOwner');
+const populateLikeStatus = require('../helper/populateLikeStatus');
 
 // GET  | get user profile and posts  | /api/profile/:username
 router.get("/:username", auth, async (req, res) => {
+    // console.log('user profile');
     try {
-        console.log(req.query);
-        let profileData;
-        if (req.query.posts && req.query.posts === 'true') {
-            profileData = await User.findOne({ username: req.params.username })
-                .populate('post');
-        } else {
-            profileData = await User.findOne({ username: req.params.username });
+        let newQuery = User.findOne({ username: req.params.username });
+        //select user fields
+        if (req.query.select) {
+            const filters = req.query.select.replace(/,/g, ' ');
+            newQuery = newQuery.select(filters);
         }
+        //add posts
+        if (req.query.posts) {
+            newQuery = newQuery.populate('post');
+        }
+        //execute query
+        console.log(newQuery)
+        let profileData = await newQuery.lean();
         if (!profileData) {
             return res.status(404).json({ errors: [{ msg: 'Profile not found' }] })
         }
-        // console.log(profileData);
+        //populate like status and count for post
+        if (req.query.posts) {
+            profileData.post = populateLikeStatus(profileData.post, req.user.id);
+        }
+        console.log(profileData);
         res.json(profileData);
     } catch (err) {
         console.log(err.message);
@@ -99,6 +110,8 @@ router.post('/img', auth, upload.single('image'), async (req, res) => {
     try {
         // save image in cloudinary 
         const newImage = req.body.newImage;
+        //console.log(newImage);
+        console.log(req.headers['content-type']);
         var result = await cloudinary.v2.uploader.upload(newImage);
         //save image url in database
         const updateQuery = { profileImg: result.secure_url };

@@ -1,0 +1,50 @@
+.post-tab {
+  width: 100%;
+  /* text-align: center; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 600;
+  font-size: 18px;
+  border-bottom: 1.5px solid rgba(0, 0, 0, 0.175);
+}
+
+.tabs {
+  display: flex;
+  height: 40px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+.text-tab {
+}
+.text-tab.active {
+  color: #3578e5;
+  border-color: #3578e5;
+}
+.photo-tab {
+}
+.photo-tab.active {
+  color: #3578e5;
+  border-color: #3578e5;
+}
+.popupBtnContainer {
+  display: flex;
+}
+.popupBtn {
+  width: 100%;
+  text-align: center;
+}
+.popupBtn img {
+  width: 30px;
+  margin-right: 3px;
+}
+.newUploadBtn {
+  margin-bottom: 15px;
+  resize: none;
+  border-radius: 15px;
+  background: #e9ecef;
+  border-color: rgba(0, 0, 0, 0.105);
+}
+.newUploadBtn::placeholder {
+  color: grey;
+}

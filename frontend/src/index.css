@@ -16,3 +16,6 @@ body {
 .hidden {
   visibility: hidden;
 }
+p {
+  margin: 0;
+}

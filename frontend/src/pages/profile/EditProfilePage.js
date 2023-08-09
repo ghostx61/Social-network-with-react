@@ -1,4 +1,5 @@
 import { Fragment, useRef, useState, useEffect } from 'react';
+import { useParams, useHistory } from 'react-router-dom';
 import classes from './EditProfilePage.module.css';
 import { useSelector } from 'react-redux';
 
@@ -19,6 +20,7 @@ import LoadingSpinner from '../../Ui/LoadingSpinner';
 import ImageCropper from '../../Ui/image-crop/ImageCropper';
 
 const EditProfilePage = () => {
+    const history = useHistory();
     const [isAlert, setIsAlert] = useTimeout(null, 4);
     const authData = useSelector(state => state.auth);
     const [isLoading, setIsLoading] = useState(false);
@@ -27,6 +29,9 @@ const EditProfilePage = () => {
     const profileImgRef = useRef();
     const [profileImg, setProfileImg] = useState('https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/LEGO_logo.svg/2048px-LEGO_logo.svg.png');
     const [oldProfileImg, setOldProfileImg] = useState(null);
+    const { username: pageUsername } = useParams();
+    const isProfileOwner = (pageUsername === authData.username);
+    if (!isProfileOwner) history.replace('/error');
 
     const [
         fnameInput,
@@ -107,7 +112,7 @@ const EditProfilePage = () => {
             setIsLoading(false);
         }
         getUserProfile();
-    }, [])
+    }, [pageUsername])
 
     const changeProfileImageHandler = () => {
         profileImgRef.current.click();

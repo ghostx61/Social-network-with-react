@@ -92,7 +92,8 @@ router.post("/signup", [
         const payload = {
             user: {
                 id: user.id,
-                username
+                username,
+                name: user.fname + " " + user.lname
             }
         }
         jwt.sign(
@@ -134,7 +135,7 @@ router.post('/login', [
         const { username, password } = req.body;
 
         //Check if user exists
-        const user = await User.findOne({ username }).select('username password');
+        const user = await User.findOne({ username }).select('username password fname lname');
         if (!user) {
             return res.status(400).json({ errors: [{ msg: 'Invalid Credentials' }] });
         }
@@ -149,7 +150,8 @@ router.post('/login', [
         const payload = {
             user: {
                 id: user.id,
-                username
+                username,
+                name: user.fname + " " + user.lname
             }
         }
         // console.log(expiresIn);

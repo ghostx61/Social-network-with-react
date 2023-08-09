@@ -18,24 +18,33 @@ router.post('/',
     ],
     async (req, res) => {
         try {
-            console.log(req.body);
+            //console.log(req.user);
             const newComment = new Comment({
                 text: req.body.text,
-                author: req.user.id,
+                author: req.user,
                 post: req.body.postId
             });
-            await newComment.save()
-            res.status(201).json({ success: true });
+            const savedComment = await newComment.save();
+            console.log(savedComment);
+            res.status(201).json({ success: true, comment: savedComment });
         } catch (err) {
             console.log(err.message)
             return res.status(500).json({ errors: [{ msg: 'Server Error' }] });
         }
     });
 
-// GET  | get comments on post | /api/comment/:id
+// GET  | get comments on post | /api/comment/post/postId
 
-router.get('/:id', auth, (req, res) => {
-    res.send(req.params.id);
+router.get('/post/:postId', auth, async (req, res) => {
+    try {
+        console.log(req.params)
+        const postId = req.params.postId;
+        const comments = await Comment.find({ post: postId }).sort({ createdAt: -1 });
+        console.log(comments);
+        res.status(200).json(comments);
+    } catch (err) {
+        console.log(err.message);
+    }
 })
 
 

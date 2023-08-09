@@ -1,0 +1,48 @@
+.card-top {
+  display: flex;
+  padding: 7px 16px;
+}
+.profile-pic {
+  width: 40px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+.card-top-right {
+  display: flex;
+  flex-direction: column;
+}
+.username {
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.post-date {
+  line-height: 1;
+  font-size: 12px;
+  color: rgba(33, 37, 41, 0.75);
+}
+.like-btn {
+  margin-right: 20px;
+}
+
+.card-bottom {
+  padding: 7px 15px;
+}
+.post-text {
+  margin-bottom: 6px;
+}
+.comment-username {
+  font-weight: 700;
+  font-size: 14px;
+}
+.comment-text {
+  font-size: 14px;
+}
+.view-more-comments {
+  font-size: 14px;
+  color: rgba(33, 37, 41, 0.75);
+}
+.view-more-comments:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}

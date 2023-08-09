@@ -1,12 +1,13 @@
 .profile {
   margin-top: 130px;
+  margin-bottom: 15px;
 }
 
-.profile-container > div {
+.profile-container > .profile-content {
   padding-top: 25px;
   text-align: center;
 }
-.profile-container > div > h5 {
+.profile-container > .profile-content > h5 {
   font-weight: 700;
 }
 
@@ -37,7 +38,33 @@
   margin: 0;
 }
 
+.edit-btn-container {
+  height: 48px;
+  text-align: right;
+}
 .edit-btn {
   width: 110px;
   margin: 10px 10px 0 auto;
+}
+
+.posts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+
+  gap: 5px;
+}
+.post-item {
+  background-color: black;
+  aspect-ratio: 1/1;
+  position: relative;
+  overflow: hidden;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.post-item img {
+  width: 100%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }

@@ -50,22 +50,100 @@ router.get('/:postId',
     });
 
 // POST  | Create new post  | /api/post/new
-router.post('/new', auth, async (req, res) => {
-    // console.log(req.body);
-    // console.log(req.user);
+router.post('/new', auth, upload.single('photo1'), async (req, res) => {
+    // console.log(req.headers['content-type']);
+    // console.log(req.file);
     try {
-        const newPost = new Post({
-            text: req.body.text,
+        let postBody = {
             user: req.user.id,
-            post: req.body.postId
-        });
+            text: req.body.text,
+            type: 'text'
+        };
+        if (req.file) {
+            // save image in cloudinary 
+            const newImage = req.file.path;
+            var result = await cloudinary.v2.uploader.upload(newImage);
+            // console.log(result);
+            //add image to body
+            postBody.photo = result.secure_url;
+            postBody.type = 'photo'
+        }
+        const newPost = new Post(postBody);
         await newPost.save();
-        return res.send('post saved');
+        return res.json({ success: true });
     } catch (err) {
         console.error(err.message);
         return res.send({ errors: [{ msg: 'Server Error' }] });
     }
 })
+
+//GET  |   add like to post   |  /api/post/:postId/like
+router.get("/:postId/like", auth, async function (req, res) {
+    const userId = req.user.id;
+    const postId = req.params.postId;
+
+    try {
+        // Find post
+        let currPost = await Post.findById(postId);
+        if (!currPost) {
+            throw new Error('Post not found');
+        }
+        //check if like is unique
+        const likeUnique = currPost.likes.includes(userId);
+        // save if like is unique
+        if (!likeUnique) {
+            currPost.likes.push(userId);
+            await currPost.save();
+        }
+        res.json({ success: true });
+    } catch (err) {
+        console.log(err.message);
+        return res.send({ errors: [{ msg: 'Server Error' }] });
+    }
+});
+
+
+//GET  |   add unlike to post   |  /api/post/:postId/unlike
+router.get("/:postId/unlike", auth, async function (req, res) {
+    const userId = req.user.id;
+    const postId = req.params.postId;
+
+    try {
+        // Find post
+        let currPost = await Post.findById(postId);
+        if (!currPost) {
+            throw new Error('Post not found');
+        }
+        var index = currPost.likes.indexOf(userId);
+        if (index !== -1) {
+            currPost.likes.splice(index, 1);
+        }
+        // console.log(currPost.likes);
+        await currPost.save();
+        res.json({ success: true });
+    } catch (err) {
+        console.log(err.message);
+        return res.send({ errors: [{ msg: 'Server Error' }] });
+    }
+});
+
+// //POST  |   add comment to post   |  /api/post/:postId/comment
+// router.post('/:postId/comment', auth, async (req, res) => {
+//     const postId = req.params.postId;
+//     const user = req.user;
+//     const text = req.body.comment || '';
+//     try {
+//         const newComment = await Comment.create({
+//             text,
+//             author: user.id,
+//             post: postId
+//         });
+//         console.log(newComment);
+//         res.json({ success: true });
+//     } catch (err) {
+//         console.log(err.message);
+//     }
+// })
 
 
 
