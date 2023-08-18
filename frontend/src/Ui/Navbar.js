@@ -4,15 +4,16 @@ import { NavLink, Link, useHistory } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import sendRequest from '../helper/sendRequest';
 import useAuth from '../hooks/use-Auth';
+import useRender from '../hooks/use-render';
 import Modal from '../Ui/Modal';
 
 import classes from './Navbar.module.css';
 import LoadingSpinner from './LoadingSpinner';
 
 
-const Navbar = () => {
-    const isAuth = useSelector(state => state.auth.isAuthenticated);
+const Navbar = (props) => {
     const authData = useSelector(state => state.auth);
+    const isAuth = useSelector(state => state.auth.isAuthenticated);
     const history = useHistory();
 
     const [navDropdownActive, setNavDropdownActive] = useState(false);
@@ -20,13 +21,16 @@ const Navbar = () => {
     const [uploadImage, setUploadImage] = useState(null);
     const [uploadImageFile, setUploadImageFile] = useState(null);
     const { userLogout } = useAuth();
+    const renderComponent = useRender();
     const uploadImageRef = useRef();
     const postTextInputRef = useRef();
     const [postTextInput, setPostTextInput] = useState('');
     const [postBtnEnable, setPostBtnEnable] = useState(false);
     const [isPostUploading, setIsPostUploading] = useState(false);
+    const [profileImg, setProfileImg] = useState('/profile-pic-default.webp');
     const username = authData.username;
     // console.log(authData);
+    // console.log('navbar render');
     useEffect(() => {
         if (postTextInput.length > 0 || uploadImage) {
             setPostBtnEnable(true);
@@ -34,6 +38,33 @@ const Navbar = () => {
             setPostBtnEnable(false);
         }
     }, [postTextInput, uploadImage])
+    useEffect(() => {
+        const getUserData = async () => {
+            // console.log(authData.token);
+            try {
+                const [data, error] = await sendRequest({
+                    method: 'GET',
+                    url: `/profile/${username}?select=profileImg`,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': authData.token
+                    }
+                });
+                if (error) {
+                    console.log(error.message);
+                    return;
+                }
+                // console.log(data);
+                setProfileImg(data.profileImg || '/profile-pic-default.webp');
+            } catch (e) {
+                // setProfileImg('/profile-pic-default.webp');
+                console.log(e.message);
+            }
+        }
+        if (username) {
+            getUserData();
+        }
+    }, [authData])
 
     const dropdownHandler = () => {
         setNavDropdownActive(state => !state);
@@ -56,8 +87,8 @@ const Navbar = () => {
 
     const addImageHandler = (event) => {
         if (event.target.files && event.target.files[0]) {
-            console.log(event.target.value);
-            console.log(event.target.files);
+            // console.log(event.target.value);
+            // console.log(event.target.files);
             setUploadImageFile(event.target.files[0]);
             setUploadImage(URL.createObjectURL(event.target.files[0]));
             // postCheckHandler();
@@ -88,7 +119,7 @@ const Navbar = () => {
         event.preventDefault();
         const enteredText = postTextInput;
         const uploadedPhoto = uploadImageFile;
-        console.log(enteredText, uploadedPhoto);
+        // console.log(enteredText, uploadedPhoto);
         if (postBtnEnable) {
             const body = new FormData();
             body.append('photo1', uploadedPhoto);
@@ -113,10 +144,13 @@ const Navbar = () => {
                     console.log(error.message);
                     return;
                 }
-                console.log(data);
+                // console.log(data);
                 // setProfileImg(data.result.secure_url);
                 setShowPostModal(false);
-                history.push('/');
+                removeImageHandler();
+                renderComponent('profilePage');
+                setPostTextInput('');
+                history.push('/profile/' + authData.username);
                 setIsPostUploading(false);
             } catch (e) {
                 console.log(e.message);
@@ -185,16 +219,18 @@ const Navbar = () => {
                     </li>
                     {isAuth && userNavLinks}
                 </ul>
-                <ul className={classes['nav-right']}>
-                    <li>
-                        <input type="text" placeholder="Search" className={classes['nav-search']} />
-                    </li>
-                    <li className={classes['profile-img']} onClick={dropdownHandler}>
-                        {/* <Link to="/"> */}
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/LEGO_logo.svg/2048px-LEGO_logo.svg.png" />
-                        {/* </Link> */}
-                    </li>
-                </ul>
+                {isAuth &&
+                    <ul className={classes['nav-right']}>
+                        <li>
+                            <input type="text" placeholder="Search" className={classes['nav-search']} />
+                        </li>
+                        <li className={classes['profile-img']} onClick={dropdownHandler}>
+                            {/* <Link to="/"> */}
+                            <img src={profileImg} />
+                            {/* </Link> */}
+                        </li>
+                    </ul>
+                }
                 {navDropdownActive && <div className={`card ${classes['nav-dropdown']}`}>
                     <ul className="list-group list-group-flush" onClick={dropdownClickHandler}>
                         <li className={`list-group-item ${classes['nav-dropdown-item']}`}>

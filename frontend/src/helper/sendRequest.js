@@ -23,7 +23,7 @@ const sendRequest = async (options) => {
         delete fetchOptions.headers;
     }
     try {
-        console.log(fetchOptions)
+        console.log(API_URL + options.url, fetchOptions);
         const response = await fetch(API_URL + options.url, fetchOptions);
         data = await response.json();
         if (!response.ok) {

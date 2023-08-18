@@ -1,5 +1,5 @@
 ###======   Variables  ============
-@authToken = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjNkYmU0ZWJjOTNmNGU3YjVlOThjYWI0IiwidXNlcm5hbWUiOiJuaW5hZDEyMyIsIm5hbWUiOiJOaW5hZCAxMjMgSGF0YW5rYXIifSwiaWF0IjoxNjkxMzI0NzE1LCJleHAiOjE2OTEzNjA3MTV9.e2uX4fYtZqxAMjHYxI4WM34izb0uIlRHcXeY0xQ3-Ws
+@authToken = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjRkYjg4ZWU5OWVhNDdmMDkwNGU2NmUwIiwidXNlcm5hbWUiOiJuaW5hZDEyMyIsIm5hbWUiOiJOaW5hZCBIYXRhbmthciJ9LCJpYXQiOjE2OTIxMDkyMzAsImV4cCI6MTY5MjE0NTIzMH0.JfrSB8b5TTbuy1jKUq4ZS1jB19Z2D5mKVdKat_zxTtw
 
 
 ###======   Testing  ============
@@ -47,7 +47,7 @@ Authorization: {{authToken}}
 
 ###======   Profile Routes  ============
 ###Get user profile
-GET http://localhost:3100/api/profile/ninad123?posts=true&select=fname,bio,profileImg HTTP/1.1
+GET http://localhost:3100/api/profile/ninad123?posts=true&followCount=true&select=fname,bio,profileImg HTTP/1.1
 Authorization: {{authToken}}
 
 
@@ -75,6 +75,39 @@ Authorization: {{authToken}}
     "profileImg": "base64"
 }
 
+###delete user profile
+DELETE http://localhost:3100/api/profile HTTP/1.1
+Authorization: {{authToken}}
+
+###======   User Routes  ============
+###get all users
+# GET http://localhost:3100/api/user HTTP/1.1
+# GET http://localhost:3100/api/user?select=fname,lname,following&omitUser=true HTTP/1.1
+GET http://localhost:3100/api/user?select=fname,lname HTTP/1.1
+Content-Type: application/json
+Authorization: {{authToken}}
+
+
+###Follow user
+POST http://localhost:3100/api/user/follow HTTP/1.1
+Content-Type: application/json
+Authorization: {{authToken}}
+
+{
+    "followingUserId": "64db88ff99ea47f0904e66e9"
+}
+
+###Unfollow user
+POST http://localhost:3100/api/user/unfollow HTTP/1.1
+Content-Type: application/json
+Authorization: {{authToken}}
+
+{
+    "unfollowingUserId": "64db890e99ea47f0904e66f2"
+}
+
+
+
 ###======   Post Routes  ============
 ###Create new post
 POST http://localhost:3100/api/post/new HTTP/1.1
@@ -96,6 +129,17 @@ Authorization: {{authToken}}
 
 ### add unlike to post
 GET http://localhost:3100/api/post/64b7fabf8db6d16a20d18563/unlike HTTP/1.1
+Content-Type: application/json
+Authorization: {{authToken}}
+
+
+### get user's following post
+GET http://localhost:3100/api/post/follow HTTP/1.1
+Content-Type: application/json
+Authorization: {{authToken}}
+
+### delete post
+DELETE http://localhost:3100/api/post/64da3e0ceb96e9a9f2c5fc2f HTTP/1.1
 Content-Type: application/json
 Authorization: {{authToken}}
 

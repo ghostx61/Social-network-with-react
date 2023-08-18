@@ -1,14 +1,14 @@
 .post-modal {
-    z-index: 100;
-    /* max-width: 1100px; */
-    width: auto;
-    top: 18vh;
-    left: 50%;
-    width: 90%;
-    /* height: 80%; */
-    transform: translateX(-50%);
-    position: fixed;
-    box-sizing: border-box;
+  z-index: 100;
+  /* max-width: 1100px; */
+  width: auto;
+  top: 18vh;
+  left: 50%;
+  width: 90%;
+  /* height: 80%; */
+  transform: translateX(-50%);
+  position: fixed;
+  box-sizing: border-box;
 }
 .backdrop {
   position: fixed;
@@ -21,24 +21,24 @@
 }
 
 .post-container {
-display: flex;
-    flex-wrap: nowrap;
-    max-height: 80vh;
-    /* width: 100%; */
-    /* aspect-ratio: 16/9; */
+  display: flex;
+  flex-wrap: nowrap;
+  max-height: 80vh;
+  /* width: 100%; */
+  /* aspect-ratio: 16/9; */
 }
 .post-left-section {
   /* border-radius: 100px; */
-      display: flex;
-    align-items: center;
-    background: black;
-    border-radius: 5px 0 0 5px;  
-    width: 100%
+  display: flex;
+  align-items: center;
+  background: black;
+  border-radius: 5px 0 0 5px;
+  width: 100%;
 }
 img.post-image {
-      width: 100%;
-    height: 100%;
-    object-fit: contain;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 .post-right-section {
   flex-basis: 0;
@@ -48,10 +48,10 @@ img.post-image {
   /* padding: 15px; */
 }
 .post-right-container {
-    width: 400px;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 .post-right-header-container {
   padding: 10px 15px;
@@ -70,7 +70,7 @@ img.post-image {
   line-height: 1;
   font-weight: 700;
 }
-.close-btn{
+.close-btn {
   margin-left: auto;
   align-self: start;
 }
@@ -84,8 +84,8 @@ img.post-image {
 }
 .comments-container {
   padding: 10px 15px;
-    height: 100%;
-    overflow-y: scroll;
+  height: 100%;
+  overflow-y: scroll;
 }
 .comment {
   margin-bottom: 6px;
@@ -111,7 +111,7 @@ img.post-image {
   text-decoration: underline;
   cursor: pointer;
 }
-.post-details-container{
+.post-details-container {
   padding: 10px 15px;
 }
 .like-btn {
@@ -124,24 +124,26 @@ img.post-image {
 .add-comment-container {
   display: flex;
 }
-.comment-textarea{
+.comment-textarea {
   width: 100%;
   border: none;
   height: 45px;
   padding: 10px 15px;
   resize: none;
 }
-.comment-textarea:focus{
+.comment-textarea:focus {
   outline: none;
 }
-.post-btn-container{
-  display:flex;
+.post-btn-container {
+  display: flex;
 }
-.post-btn{
+.post-btn {
   border: none;
   width: 60px;
   font-weight: 700;
-  border-radius:0;
+  border-radius: 0;
 }
-
-
+.delete-btn {
+  margin-left: 30px;
+  cursor: pointer;
+}

@@ -1,19 +1,35 @@
 import classes from './UserFollowCard.module.css';
+import LoadingSpinner from '../../Ui/LoadingSpinner';
+import { Link } from 'react-router-dom/cjs/react-router-dom.min';
+import FollowButton from '../buttons/follow-button/FollowButton';
 
 const UserFollowCard = (props) => {
+    const isFollowing = props.isFollowing;
+    const isLoading = props.isLoading;
     return (
-        <div className="card">
-            <div className={`card-body ${classes['main']}`}>
+        <div className={`card ${classes['main']}`}>
+            <div className={`card-body ${classes['main-body']}`}>
                 <div className={classes[`left-container`]}>
                     <div className={classes['img-container']}>
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/LEGO_logo.svg/2048px-LEGO_logo.svg.png" />
+                        <Link to={`/profile/${props.username}`}>
+                            <img src={props.profileImg} />
+                        </Link>
                     </div>
                     <div className={classes['content']}>
-                        <h5 className={classes['name']}>Ninad Hatankar</h5>
-                        <h6 className={classes['username']}>@ninad123</h6>
+                        <Link to={`/profile/${props.username}`} className={classes['link-text']}>
+                            <h5 className={classes['name']}>{props.name}</h5>
+                        </Link>
+                        <h6 className={classes['username']}>@{props.username}</h6>
                     </div>
                 </div>
-                <button className={`btn btn-primary`}>follow</button>
+                {/* {
+                    !isLoading && (
+                        (!isFollowing && <button className={`btn btn-primary`} onClick={props.onFollow.bind(this, props.id, 'follow')}>follow</button>) ||
+                        (isFollowing && <button className={`btn btn-outline-primary`} onClick={props.onFollow.bind(this, props.id, 'unfollow')}>unfollow</button>)
+                    )
+                } */}
+                {!isLoading && < FollowButton isFollowing={isFollowing} onFollow={props.onFollow} userId={props.id} />}
+                {isLoading && <LoadingSpinner />}
             </div>
         </div>
     )

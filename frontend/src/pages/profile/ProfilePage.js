@@ -10,25 +10,36 @@ import { formatDate2 } from '../../helper/dataTransform';
 import Post from '../../Ui/Post';
 import Modal from '../../Ui/Modal';
 import PostModal from '../../Ui/PostModal/PostModal';
+import TopModal from '../../Ui/TopModal/TopModal';
+import useAuth from '../../hooks/use-Auth';
+import FollowButton from '../../Ui/buttons/follow-button/FollowButton';
 
 const ProfilePage = () => {
     const authData = useSelector(state => state.auth);
+    const renderComponent = useSelector(state => state.render.renderProfilePage);
+    const auth = useAuth();
     const history = useHistory();
     const [isLoading, setIsLoading] = useState(false);
+    const [isFollowBtnLoading, setIsFollowBtnLoading] = useState(false);
     const [user, setUser] = useState({});
     const [userPosts, setUserPosts] = useState([]);
     const [showPost, setShowPost] = useState(false);
     const [postModalData, setPostModalData] = useState({});
+    const [deleteProfileModal, setDeleteProfileModal] = useState({ isOpen: false, isLoading: false });
     const { username: pageUsername } = useParams();
+    const placeholderImg = '/profile-pic-default.webp';
     const isProfileOwner = (pageUsername === authData.username);
     // console.log(currUsername);
+    // console.log('profile page render')
+    // console.log(renderComponent)
     const likeTimer = useRef(null);
     useEffect(() => {
+        console.log('send profile request')
         setIsLoading(true);
         const getUserProfile = async () => {
             const [data, error] = await sendRequest({
                 method: 'GET',
-                url: '/profile/' + pageUsername + '?posts=true',
+                url: '/profile/' + pageUsername + '?posts=true&followCount=true',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': authData.token
@@ -47,7 +58,7 @@ const ProfilePage = () => {
             setIsLoading(false);
         }
         getUserProfile();
-    }, [pageUsername])
+    }, [pageUsername, renderComponent])
 
     const getPostCommentsHandler = async (postId) => {
         console.log('get comment');
@@ -72,6 +83,7 @@ const ProfilePage = () => {
         // console.log(clickedPost);
         const newData = {
             name: `${user.fname} ${user.lname}`,
+            profileImg: user.profileImg,
             text: clickedPost.text,
             photo: clickedPost.photo,
             userImage: null,
@@ -151,20 +163,98 @@ const ProfilePage = () => {
         ));
     }
 
+    const deletePostHandler = (postId) => {
+        console.log('delete from profile ' + postId);
+        setUserPosts(prevState => prevState.filter(el => el._id != postId));
+    }
+
+    // delete profile hanlders
+    const openDeleteProfileModal = () => {
+        setDeleteProfileModal(prevState => ({ ...prevState, isOpen: true }));
+    }
+    const closeDeleteProfileModal = () => {
+        setDeleteProfileModal(prevState => ({ ...prevState, isOpen: false }));
+    }
+    const profileDeleteHandler = async () => {
+        console.log('profile delete');
+        setDeleteProfileModal(prevState => ({ ...prevState, isLoading: true }));
+        //delete from DB
+        const [deleteData, error] = await sendRequest({
+            method: 'DELETE',
+            url: '/profile',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': authData.token
+            }
+        });
+        if (error) {
+            return console.log(error);
+        }
+        //logout user
+        auth.userLogout();
+    }
+
+    // on click follow
+    const followHandler = async (followerId, followState) => {
+        // console.log('follow' + followerId);
+
+        //setup varibales for based on followState
+        setIsFollowBtnLoading(true);
+        const isFollowing = followState === 'follow';
+        const body = isFollowing ?
+            { followingUserId: followerId } :
+            { unfollowingUserId: followerId };
+
+        // update to DB
+        const [data, error] = await sendRequest({
+            method: 'POST',
+            url: '/user/' + followState,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': authData.token
+            },
+            body
+        });
+        if (error) {
+            return console.log(error);
+        }
+        // change follow status locally
+        setUser(prevState => ({ ...prevState, isFollowing, followingCount: isFollowing ? prevState.followingCount + 1 : prevState.followingCount - 1 }));
+        setIsFollowBtnLoading(false);
+    }
+
     return (
         <Fragment>
-            {/* <Modal title='testt'>
-                <Post />
-            </Modal> */}
-            {showPost && createPortal(<PostModal close={closePostModal} data={postModalData} likeBtnClick={likeBtnHandler} commentSubmit={addNewCommentHandler} />, document.getElementById('modal-root'))}
+            {/* delete profile modal  */}
+            {deleteProfileModal.isOpen && createPortal(
+                <TopModal
+                    title='Delete Profile'
+                    bodyCopy="Are you sure you want to delete your profile? You wont be able to recover it later"
+                    buttonClickHandler={profileDeleteHandler}
+                    buttonLoading={deleteProfileModal.isLoading}
+                    closeModal={closeDeleteProfileModal}
+                />,
+                document.getElementById('modal-root-top'))}
+            {/* Post modal  */}
+            {showPost && createPortal(
+                <PostModal
+                    close={closePostModal}
+                    data={postModalData}
+                    likeBtnClick={likeBtnHandler}
+                    isOwner={true}
+                    deletePost={deletePostHandler}
+                    commentSubmit={addNewCommentHandler} />,
+                document.getElementById('modal-root'))}
             {isLoading && <div className='center'>
                 <LoadingSpinner />
             </div>}
             {!isLoading && <div className={classes['profile']}>
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/LEGO_logo.svg/2048px-LEGO_logo.svg.png" className={classes['profile-img']} />
+                <img src={user.profileImg || placeholderImg} className={classes['profile-img']} />
                 <div className={`card ${classes['profile-container']}`}>
                     <div className={classes['edit-btn-container']}>
+                        {isProfileOwner && <div className={`btn btn-outline-danger ${classes['delete-btn']}`} onClick={openDeleteProfileModal}>Delete Profile</div>}
                         {isProfileOwner && <Link to={`/profile/${pageUsername}/edit`} className={`btn btn-primary ${classes['edit-btn']}`}>Edit Profile</Link>}
+                        {!isProfileOwner && <FollowButton isFollowing={user.isFollowing} onFollow={followHandler} userId={user._id} addClass='profilePage' isLoading={isFollowBtnLoading} />}
                     </div>
                     <div className={`card-body ${classes['profile-content']}`}>
                         <h5 className="card-title">{user.fname} {user.lname}</h5>
@@ -175,6 +265,20 @@ const ProfilePage = () => {
                             <p>{user.dob}</p>
                         </div>}
                         <p className={classes['join-date']}>Joined on {user.createdAt}</p>
+                        <div className={classes['profile-stats']}>
+                            <div className={classes['stat-item']}>
+                                <p className={classes['stat-no']}>{userPosts.length}</p>
+                                <p className={classes['stat-name']}>Posts</p>
+                            </div>
+                            <div className={classes['stat-item']}>
+                                <p className={classes['stat-no']}>{user.followingCount}</p>
+                                <p className={classes['stat-name']}>Following</p>
+                            </div>
+                            <div className={classes['stat-item']}>
+                                <p className={classes['stat-no']}>{user.followerCount}</p>
+                                <p className={classes['stat-name']}>Followers</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>}

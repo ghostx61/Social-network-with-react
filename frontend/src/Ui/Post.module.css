@@ -1,3 +1,6 @@
+.post-card {
+  margin-bottom: 10px;
+}
 .card-top {
   display: flex;
   padding: 7px 16px;
@@ -10,6 +13,13 @@
 .card-top-right {
   display: flex;
   flex-direction: column;
+}
+.card-top-right > a {
+  color: black;
+  text-decoration: none;
+}
+.card-top-right > a:hover {
+  text-decoration: underline;
 }
 .username {
   font-weight: 700;

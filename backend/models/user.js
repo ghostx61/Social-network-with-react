@@ -14,7 +14,10 @@ var UserSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    profileImg: String,
+    profileImg: {
+        type: String
+    },
+    profileImgId: String,
     dob: Date,
     bio: String,
     address: String,
@@ -35,8 +38,18 @@ var UserSchema = new mongoose.Schema({
     //         ref: "Post"
     //     }
     // ],
-    follow: [String],
-    followers: [String]
+    // following: [
+    //     {
+    //         type: mongoose.Schema.Types.ObjectId,
+    //         ref: 'User'
+    //     }
+    // ],
+    // followers: [
+    //     {
+    //         type: mongoose.Schema.Types.ObjectId,
+    //         ref: 'User'
+    //     }
+    // ]
 }, {
     toJSON: { virtuals: true },     // for reverse populate
     toObject: { virtuals: true },   // for reverse populate
@@ -47,6 +60,17 @@ UserSchema.virtual('post', {
     ref: 'Post',
     localField: '_id',
     foreignField: 'user'
+});
+UserSchema.virtual('following', {
+    ref: 'Follow',
+    localField: '_id',
+    foreignField: 'follower'
+});
+
+UserSchema.virtual('follower', {
+    ref: 'Follow',
+    localField: '_id',
+    foreignField: 'following'
 });
 
 UserSchema.plugin(passportLocalMongoose);

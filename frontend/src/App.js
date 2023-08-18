@@ -18,9 +18,11 @@ import FindFriendsPage from './pages/find-friends/FindFriendsPage';
 
 function App() {
   const token = localStorage.getItem('token');
+  const authData = useSelector(state => state.auth);
   const isAuth = useSelector(state => state.auth.isAuthenticated);
   const { userLogin } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
+  // console.log('app render');
   useEffect(() => {
     // authenticate token
     async function checkAuth() {
@@ -39,11 +41,18 @@ function App() {
           return;
         };
         userLogin({ token, id: data.id, username: data.username });
+        // console.log(data);
+        // console.log(authData)
       }
       setIsLoading(false);
     }
     checkAuth();
   }, []);
+
+  const postUpdateHandler = () => {
+    console.log('post update');
+  }
+
   const authRoutes = (
     <Switch>
       <Route path='/login' exact>
@@ -66,6 +75,9 @@ function App() {
       <Route path='/profile/:username' exact>
         <ProfilePage />
       </Route>
+      {/* <Route path={['/', '/profile/:username']} exact>
+        <HomePage />
+      </Route> */}
       <Route path='/profile/:username/edit' exact>
         <EditProfilePage />
       </Route>
@@ -85,7 +97,7 @@ function App() {
   )
   return (
     <Fragment>
-      <Navbar />
+      <Navbar onPostUpdate={postUpdateHandler} />
       <main>
         <section>
           {!isLoading &&

@@ -12,6 +12,7 @@ const cors = require('cors');
 var Comment = require("./models/comment");
 var Post = require("./models/post");
 var User = require("./models/user");
+var Follow = require("./models/follow");
 
 var postRoutes = require("./routes/posts");
 var profileRoutes = require("./routes/profile");
@@ -79,7 +80,7 @@ app.use(function (req, res, next) {
 app.use("/api/profile", profileRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/post", postRoutes);
-app.use("/api", indexRoutes);
+app.use("/api/user", indexRoutes);
 app.use("/api/comment", commentRoutes);
 
 // for testing

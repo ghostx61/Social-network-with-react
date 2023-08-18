@@ -1,5 +1,6 @@
 var express = require("express");
 var router = express.Router();
+const mongoose = require('mongoose');
 const { check, validationResult } = require('express-validator');
 //cloudinary config
 var multer = require('multer');
@@ -31,6 +32,45 @@ var Comment = require("../models/comment");
 var middleware = require("../middleware");
 
 //new
+
+//GET  |   get user's following post   |  /api/post/follow
+router.get("/follow", auth, async function (req, res) {
+    try {
+        const userId = req.user.id;
+
+        // get user's following list
+        const newUser = await User.findById(userId).select('_id').populate('following');
+        if (!newUser) {
+            res.status(200).json({ posts: [] })
+        }
+        const followingList = newUser.following.map(el => el.following);
+
+        // get posts of all following list users and sort posts
+        const allPosts = await Post.find({
+            user: { $in: followingList }
+        }).populate({
+            path: 'user',
+            select: 'fname lname username profileImg'
+        }).populate({
+            path: 'comment',
+            options: { sort: { createdAt: -1 } }
+        }
+        ).sort({ createdAt: -1 }).lean();
+
+        //add likes and comment counts to posts
+        for (let post of allPosts) {
+            post.likesCount = post.likes.length
+            post.commentsCount = post.comment.length
+            post.isPostLiked = post.likes.some(el => el._id.toString() === userId.toString());
+        }
+        //console.log(newUser);
+        res.status(200).json({ posts: allPosts });
+    } catch (err) {
+        console.log(err.message);
+    }
+
+});
+
 // GET  | Get post by id  | /api/post/new
 router.get('/:postId',
     auth,
@@ -63,10 +103,11 @@ router.post('/new', auth, upload.single('photo1'), async (req, res) => {
             // save image in cloudinary 
             const newImage = req.file.path;
             var result = await cloudinary.v2.uploader.upload(newImage);
-            // console.log(result);
+            console.log(result);
             //add image to body
             postBody.photo = result.secure_url;
             postBody.type = 'photo'
+            postBody.photoId = result.public_id;
         }
         const newPost = new Post(postBody);
         await newPost.save();
@@ -127,23 +168,47 @@ router.get("/:postId/unlike", auth, async function (req, res) {
     }
 });
 
-// //POST  |   add comment to post   |  /api/post/:postId/comment
-// router.post('/:postId/comment', auth, async (req, res) => {
-//     const postId = req.params.postId;
-//     const user = req.user;
-//     const text = req.body.comment || '';
-//     try {
-//         const newComment = await Comment.create({
-//             text,
-//             author: user.id,
-//             post: postId
-//         });
-//         console.log(newComment);
-//         res.json({ success: true });
-//     } catch (err) {
-//         console.log(err.message);
-//     }
-// })
+//Delete  |   delete post   |  /api/post/:postId
+router.delete("/:postId", auth, async function (req, res) {
+    try {
+        //start mongodb session
+        session = await mongoose.startSession();
+        session.startTransaction();
+
+        // find post by postId and userid and delete
+        const deletedPost = await Post.findOneAndDelete({
+            _id: req.params.postId,
+            user: req.user.id
+        }, { session })
+        console.log(deletedPost);
+
+        //if user not found, end session
+        if (!deletedPost) {
+            await session.abortTransaction();
+            session.endSession();
+            throw new Error('Post not found');
+        }
+
+        // delete image for cloudinary
+        await cloudinary.v2.uploader.destroy(deletedPost.photoId);
+
+        // delete post's comments
+        await Comment.deleteMany({ post: deletedPost._id }, { session });
+
+        // If all queries are executed successfully, commit changes
+        await session.commitTransaction();
+
+        // return success message
+        res.status(201).json({ success: true });
+
+    } catch (err) {
+        console.log(err.message);
+        await session.abortTransaction();
+        res.status(404).json({ error: err.message });
+    } finally {
+        session.endSession();
+    }
+});
 
 
 

@@ -1,4 +1,7 @@
 .main {
+  margin-bottom: 10px;
+}
+.main-body {
   display: flex;
 }
 .left-container {
@@ -13,7 +16,7 @@
   display: flex;
   align-items: center;
 }
-.img-container > img {
+.img-container > a > img {
   width: 44px;
   border-radius: 50%;
 }
@@ -23,4 +26,11 @@
 .username {
   color: rgba(33, 37, 41, 0.75);
   margin-bottom: 0;
+}
+.link-text {
+  color: black;
+  text-decoration: none;
+}
+.link-text:hover {
+  text-decoration: underline;
 }

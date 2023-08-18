@@ -26,8 +26,9 @@ const EditProfilePage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
     const [isProfileImgLoading, setIsProfileImgLoading] = useState(false);
+    const [isFormSubmitLoading, setIsFormSubmitLoading] = useState(false);
     const profileImgRef = useRef();
-    const [profileImg, setProfileImg] = useState('https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/LEGO_logo.svg/2048px-LEGO_logo.svg.png');
+    const [profileImg, setProfileImg] = useState('/profile-pic-default.webp');
     const [oldProfileImg, setOldProfileImg] = useState(null);
     const { username: pageUsername } = useParams();
     const isProfileOwner = (pageUsername === authData.username);
@@ -177,7 +178,7 @@ const EditProfilePage = () => {
                 console.log(error.message);
                 return;
             }
-            console.log(data);
+            // console.log(data);
             setProfileImg(data.result.secure_url);
             modalClose(false);
         } catch (e) {
@@ -196,11 +197,12 @@ const EditProfilePage = () => {
     }
     const imageSubmitHandler = (event) => {
         event.preventDefault();
-        console.log(event);
+        // console.log(event);
     }
 
     const submitHandler = async (event) => {
         event.preventDefault();
+        setIsFormSubmitLoading(true);
         let isFormValid = true;
         if (fnameInput.length < 1) {
             setIsFnameVaild(false);
@@ -244,6 +246,8 @@ const EditProfilePage = () => {
             }
         });
         console.log(data);
+        history.push('/profile/' + usernameInput);
+        setIsFormSubmitLoading(false);
     }
     return (
         <Fragment>
@@ -257,95 +261,103 @@ const EditProfilePage = () => {
                 </Fragment>
             }
             {isAlert && <Alert message={isAlert} />}
-            <div className={`${classes.card} ${classes['form-class']}`}>
-                <h2>Social Network</h2>
-                <form onSubmit={imageSubmitHandler}>
-                    <input type="file" id="imgupload" className="hide" ref={profileImgRef} onChange={changeHandler} accept="image/*" />
-                </form>
-                <form onSubmit={submitHandler}>
-                    {/* Profile pic */}
-                    <div className={classes['profile-container']}>
-                        <div className={`${classes['img-container']} ${isProfileImgLoading ? 'hide' : ''}`} title="Change profile img" onClick={changeProfileImageHandler}>
-                            <img src={`${process.env.PUBLIC_URL}/camera-dark.png`} className={classes['profile-img-overlay']} />
-                            <img src={profileImg} alt="profile picture" className={classes['profile-img']} />
+            {isLoading && <LoadingSpinner />}
+            {!isLoading &&
+                <div className={`${classes.card} ${classes['form-class']}`}>
+                    <h2>Social Network</h2>
+                    <form onSubmit={imageSubmitHandler}>
+                        <input type="file" id="imgupload" className="hide" ref={profileImgRef} onChange={changeHandler} accept="image/*" />
+                    </form>
+                    <form onSubmit={submitHandler}>
+                        {/* Profile pic */}
+                        <div className={classes['profile-container']}>
+                            <div className={`${classes['img-container']} ${isProfileImgLoading ? 'hide' : ''}`} title="Change profile img" onClick={changeProfileImageHandler}>
+                                <img src={`${process.env.PUBLIC_URL}/camera-dark.png`} className={classes['profile-img-overlay']} />
+                                <img src={profileImg} alt="profile picture" className={classes['profile-img']} />
+                            </div>
+                            <button type="button" className={`${classes['profile-img-btn']} ${isProfileImgLoading ? 'hide' : ''}`} onClick={changeProfileImageHandler}>Change profile image</button>
+                            {isProfileImgLoading && <LoadingSpinner className={classes['loading']} />}
                         </div>
-                        <button type="button" className={`${classes['profile-img-btn']} ${isProfileImgLoading ? 'hide' : ''}`} onClick={changeProfileImageHandler}>Change profile image</button>
-                        {isProfileImgLoading && <LoadingSpinner className={classes['loading']} />}
-                    </div>
-                    {/* First name  */}
-                    <Input
-                        title="First name*"
-                        type='text'
-                        id='fname'
-                        placeholder="John"
-                        isValid={isFnameValid}
-                        invalidMessage="First Name is required"
-                        focus={fnameFocusHandler}
-                        value={fnameInput}
-                        change={fnameInputChangeHandler}
-                    />
-                    {/* Last name  */}
-                    <Input
-                        title="Last name*"
-                        type='text'
-                        id='lname'
-                        placeholder="Doe"
-                        isValid={isLnameValid}
-                        invalidMessage="Last Name is required"
-                        focus={lnameFocusHandler}
-                        value={lnameInput}
-                        change={lnameInputChangeHandler}
-                    />
-                    {/* Username  */}
-                    <Input
-                        title="Username*"
-                        type='text'
-                        id='username'
-                        placeholder="john345"
-                        isValid={isUsernameValid}
-                        invalidMessage="Username should be more than 6 characters"
-                        focus={usernameFocusHandler}
-                        value={usernameInput}
-                        change={usernameInputChangeHandler}
-                    />
-                    {/* Email address  */}
-                    <Input
-                        title="Email address*"
-                        type='text'
-                        id='email'
-                        placeholder="john@mail.com"
-                        isValid={isEmailValid}
-                        invalidMessage="Enter valid email"
-                        focus={emailFocusHandler}
-                        value={emailInput}
-                        change={emailInputChangeHandler}
-                    />
-                    {/* Bio  */}
-                    <TextArea
-                        title="Bio"
-                        id="bio"
-                        placeholder="Describe yourself..."
-                        isValid={isBioValid}
-                        invalidMessage="no bio"
-                        focus={bioFocusHandler}
-                        value={bioInput}
-                        change={bioInputChangeHandler}
-                    />
-                    {/* Date of Birth */}
-                    <Input
-                        title="Date of Birth"
-                        type='date'
-                        id='date'
-                        placeholder=""
-                        isValid={isDobValid}
-                        invalidMessage="Enter valid date of birth"
-                        focus={dobFocusHandler}
-                        value={dobInput}
-                        change={dobInputChangeHandler}
-                    />
-                    <button className={classes.button}>Update Profile</button>
-                </form>
-            </div>
+                        {/* First name  */}
+                        <Input
+                            title="First name*"
+                            type='text'
+                            id='fname'
+                            placeholder="John"
+                            isValid={isFnameValid}
+                            invalidMessage="First Name is required"
+                            focus={fnameFocusHandler}
+                            value={fnameInput}
+                            change={fnameInputChangeHandler}
+                        />
+                        {/* Last name  */}
+                        <Input
+                            title="Last name*"
+                            type='text'
+                            id='lname'
+                            placeholder="Doe"
+                            isValid={isLnameValid}
+                            invalidMessage="Last Name is required"
+                            focus={lnameFocusHandler}
+                            value={lnameInput}
+                            change={lnameInputChangeHandler}
+                        />
+                        {/* Username  */}
+                        {/* <Input
+                            title="Username*"
+                            type='text'
+                            id='username'
+                            placeholder="john345"
+                            isValid={isUsernameValid}
+                            invalidMessage="Username should be more than 6 characters"
+                            focus={usernameFocusHandler}
+                            value={usernameInput}
+                            change={usernameInputChangeHandler}
+                        /> */}
+                        {/* Email address  */}
+                        <Input
+                            title="Email address*"
+                            type='text'
+                            id='email'
+                            placeholder="john@mail.com"
+                            isValid={isEmailValid}
+                            invalidMessage="Enter valid email"
+                            focus={emailFocusHandler}
+                            value={emailInput}
+                            change={emailInputChangeHandler}
+                        />
+                        {/* Bio  */}
+                        <TextArea
+                            title="Bio"
+                            id="bio"
+                            placeholder="Describe yourself..."
+                            isValid={isBioValid}
+                            invalidMessage="no bio"
+                            focus={bioFocusHandler}
+                            value={bioInput}
+                            change={bioInputChangeHandler}
+                        />
+                        {/* Date of Birth */}
+                        <Input
+                            title="Date of Birth"
+                            type='date'
+                            id='date'
+                            placeholder=""
+                            isValid={isDobValid}
+                            invalidMessage="Enter valid date of birth"
+                            focus={dobFocusHandler}
+                            value={dobInput}
+                            change={dobInputChangeHandler}
+                        />
+                        {isFormSubmitLoading &&
+                            <div className="center">
+                                <LoadingSpinner />
+                            </div>
+                        }
+                        {!isFormSubmitLoading && <button className={classes.button}>Update Profile</button>}
+                    </form>
+                </div>
+            }
         </Fragment>
     )
 }

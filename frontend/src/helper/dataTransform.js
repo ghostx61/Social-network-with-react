@@ -30,3 +30,7 @@ export function formatDate4(date) {
     newDate = newDate[0].replace('an', '1') + ' ' + newDate[1].charAt(0)
     return newDate;
 }
+
+export function formatDate5(date) {
+    return moment(date).format('LT');
+}

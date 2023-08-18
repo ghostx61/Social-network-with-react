@@ -40,11 +40,16 @@
 
 .edit-btn-container {
   height: 48px;
-  text-align: right;
+  display: flex;
 }
 .edit-btn {
   width: 110px;
   margin: 10px 10px 0 auto;
+}
+
+.delete-btn {
+  width: 128px;
+  margin: 10px 5px 0 10px;
 }
 
 .posts-grid {
@@ -67,4 +72,19 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+/* profile stats  */
+.profile-stats {
+  display: flex;
+  margin-top: 6px;
+}
+.stat-item {
+  width: 100%;
+}
+.stat-no {
+  font-weight: 600;
+}
+.stat-name {
+  font-size: 14px;
 }
