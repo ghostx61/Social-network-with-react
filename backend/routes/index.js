@@ -16,6 +16,23 @@ router.get("/search", auth, async (req, res) => {
         let searchQuery = {};
 
         searchQuery = { _id: { $ne: userId } }
+
+        // add search term to query
+        if (req.query.searchTerm) {
+            const searchTerm = req.query.searchTerm;
+            // console.log(searchTerm);
+            const regex = new RegExp(searchTerm, 'i'); // 'i' flag for case-insensitive matching
+            searchQuery = {
+                ...searchQuery,
+                $or: [
+                    { fname: regex },
+                    { lname: regex },
+                    { username: regex }
+                ]
+            }
+        }
+
+
         let newQuery = User.find(searchQuery);
 
         //select user fields
@@ -24,18 +41,50 @@ router.get("/search", auth, async (req, res) => {
             newQuery = newQuery.select(selectedFields);
         }
         console.log(userId);
-        const users = await newQuery.populate(
+        newQuery = newQuery.populate(
             {
                 path: 'follower',
                 match: { follower: userId }
             }
-        ).lean();
-        console.log(JSON.stringify(users, null, 4));
-        for (let user of users) {
-            user.isFollowing = user.follower.length > 0;
-            delete user.follower;
+        );
+
+        if (req.query.isFollower) {
+            newQuery.populate(
+                {
+                    path: 'following',
+                    match: { following: userId }
+                }
+            )
         }
-        res.json({ users });
+
+        const users = await newQuery.lean();
+        // console.log(JSON.stringify(users, null, 4));
+        let updatedUsers = [];
+        if (req.query.isFollowing) {
+            for (let user of users) {
+                if (user.follower.length > 0) {
+                    user.isFollowing = true;
+                    delete user.follower;
+                    updatedUsers.push(user);
+                }
+            }
+        } else if (req.query.isFollower) {
+            for (let user of users) {
+                if (user.following.length > 0) {
+                    user.isFollowing = user.follower.length > 0;
+                    delete user.follower;
+                    delete user.following;
+                    updatedUsers.push(user);
+                }
+            }
+        } else {
+            for (let user of users) {
+                user.isFollowing = user.follower.length > 0;
+                delete user.follower;
+                updatedUsers.push(user);
+            }
+        }
+        res.json({ users: updatedUsers });
     } catch (err) {
         console.log(err.message);
         res.status(401).json({ err })

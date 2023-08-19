@@ -8,10 +8,13 @@ import { createPortal } from "react-dom";
 import PostModal from "../../Ui/PostModal/PostModal";
 import LoadingSpinner from "../../Ui/LoadingSpinner";
 import { useLocation } from "react-router-dom";
+import useScrollHomepage from "../../hooks/use-scroll-homepage";
 
 
 const HomePage = () => {
     const authData = useSelector(state => state.auth);
+    const scrollData = useSelector(state => state.homepageScroll);
+    const setScrollPos = useScrollHomepage();
     const [allPosts, setAllPosts] = useState([]);
     const [arePostsLoading, setArePostsLoading] = useState(true);
     const [likesCountArr, setLikesCountArr] = useState([]);
@@ -19,6 +22,7 @@ const HomePage = () => {
     const [activeTab, setActiveTab] = useState('post');
     const [postModalData, setPostModalData] = useState({});
     const [showPost, setShowPost] = useState(false);
+    const [scrollPosition, setScrollPosition] = useState(0);
     const postInputRef = useRef();
     const likeTimer = useRef(null);
     const location = useLocation();
@@ -49,11 +53,29 @@ const HomePage = () => {
             console.log(enteredPostInputValue);
         }
     }
+
+    // Function to handle the scroll event
+    const handleScroll = () => {
+        // console.log(window.scrollY);
+        // setScrollPosition(window.scrollY);
+        setScrollPos(window.scrollY)
+    };
+
     //fetch placeholder image
     const placeholderImg = 'https://res.cloudinary.com/ghostx61/image/upload/v1691596333/frx77nhswvhsz9po7vdw.jpg';
     useEffect(() => {
         const image = new Image();
         image.src = placeholderImg;
+
+        // Add the scroll event listener
+        window.addEventListener('scroll', handleScroll);
+
+        // Clean up by removing the event listener when the component unmounts
+        return () => {
+            console.log('scroll new ' + scrollPosition);
+            window.removeEventListener('scroll', handleScroll);
+            // setScrollPos(window.pageYOffset);
+        };
     }, []);
 
     // get post feed
@@ -77,6 +99,12 @@ const HomePage = () => {
             setLikesCountArr(data.posts.map(el => ({ likesCount: el.likesCount, isPostLiked: el.isPostLiked })));
             setCommentsArr(data.posts.map(el => ({ comments: [...el.comment], commentsCount: el.commentsCount })));
             setArePostsLoading(false);
+            console.log(scrollData.scrollY);
+            // window.scrollTo(0, scrollData.scrollY);
+            window.scrollTo({
+                top: scrollData.scrollY,
+                behavior: 'instant' // Set the behavior to "instant" for instant scrolling
+            });
         }
         // getAllPosts();
         if (location.pathname === '/') {
@@ -115,6 +143,7 @@ const HomePage = () => {
                 return console.log(error);
             }
             console.log(likeData);
+            console.log('scroll y ' + window.pageYOffset);
         }, 1000);
         // setPostModalData(prevState => ({ ...prevState, postLiked: newLikeStatus, likesCount }));
         setLikesCountArr(prevState => {
@@ -176,6 +205,9 @@ const HomePage = () => {
             </div>
         </form>
     );
+
+
+
     return (
         <Fragment>
             {/* Post modal  */}

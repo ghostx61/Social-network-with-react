@@ -45,7 +45,12 @@ router.get("/:username", auth, async (req, res) => {
         }
         //add posts
         if (req.query.posts) {
-            newQuery = newQuery.populate('post');
+            newQuery = newQuery.populate({
+                path: 'post',
+                options: {
+                    sort: { createdAt: -1 }
+                }
+            });
         }
         //add follow count
         if (req.query.followCount) {

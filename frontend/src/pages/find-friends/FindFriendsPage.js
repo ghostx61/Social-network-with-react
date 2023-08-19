@@ -1,19 +1,30 @@
 import classes from './FindFriendsPage.module.css';
-import { useLocation } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 
 import UserFollowCard from "../../Ui/user-follow-card/UserFollowCard";
 import { NavLink } from 'react-router-dom/cjs/react-router-dom.min';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import sendRequest from '../../helper/sendRequest';
 import { useSelector } from 'react-redux';
+import LoadingSpinner from '../../Ui/LoadingSpinner';
 
 const FindFriendsPage = () => {
+    const [searchInput, setSearchInput] = useState('');
+    const [usersLoading, setUsersLoading] = useState(false);
+    const [queryParamValue, setQueryParamValue] = useState('');
     const location = useLocation();
-    const searchParams = new URLSearchParams(location.search);
+    const history = useHistory();
 
     // Access individual query parameters
-    const queryParamValue = searchParams.get('path');
-    //console.log(queryParamValue);
+    useEffect(() => {
+        const searchParams = new URLSearchParams(location.search);
+        const newQueryParam = searchParams.get('path');
+        setQueryParamValue(newQueryParam);
+        if (!newQueryParam) {
+            history.replace('/find-friends?path=all');
+        }
+        // console.log(queryParamValue);
+    }, [history, location.search]);
 
     const navAllActiveClass = queryParamValue === 'all' ? classes.active : '';
     const navFollowingActiveClass = queryParamValue === 'following' ? classes.active : '';
@@ -21,34 +32,44 @@ const FindFriendsPage = () => {
 
     const authData = useSelector(state => state.auth);
     const [users, setUsers] = useState([]);
+    const searchTimer = useRef(null);
     //fetch placeholder image
     const placeholderImg = '/profile-pic-default.webp';
     useEffect(() => {
         const image = new Image();
         image.src = placeholderImg;
     }, []);
-    //fetch users
-    useEffect(() => {
-        const getUsers = async () => {
-            const [data, error] = await sendRequest({
-                method: 'GET',
-                url: '/user/search?select=fname,lname,username,profileImg',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': authData.token
-                }
-            });
-            if (error) {
-                return console.log(error);
+
+    //get users function
+    const getUsers = async () => {
+        let url = '/user/search?select=fname,lname,username,profileImg&searchTerm=' + searchInput;
+        if (queryParamValue === 'following') url += '&isFollowing=true';
+        if (queryParamValue === 'followers') url += '&isFollower=true';
+        //console.log('get users');
+        setUsersLoading(true);
+        const [data, error] = await sendRequest({
+            method: 'GET',
+            url,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': authData.token
             }
-            console.log(data.users);
-            setUsers(data.users.map(el => {
-                el.isLoading = false;
-                return el;
-            }));
+        });
+        if (error) {
+            return console.log(error);
         }
+        console.log(data.users);
+        setUsers(data.users.map(el => {
+            el.isLoading = false;
+            return el;
+        }));
+        setUsersLoading(false);
+    }
+
+    // run user function
+    useEffect(() => {
         getUsers();
-    }, []);
+    }, [queryParamValue]);
 
     // on click follow
     const followHandler = async (followerId, followState) => {
@@ -77,24 +98,21 @@ const FindFriendsPage = () => {
         setUsers(prevState => prevState.map(el => el._id === followerId ? { ...el, isFollowing: isFollowing, isLoading: false } : el));
     }
 
+    //search input
+    const updateSearchInputHandler = (event) => {
+        // console.log(event.target.value);
+        setSearchInput(event.target.value);
+        clearTimeout(searchTimer.current);
+        searchTimer.current = setTimeout(async () => {
+            getUsers();
+        }, 500);
+    }
+
 
     return (
         <div>
             <h1>Find friends</h1>
-            <input type="text" name="" id="" className={`form-control ${classes['search']}`} placeholder='search...' />
-
-            {/* Tabs  */}
-            {/* <ul className="nav nav-underline">
-                <li className="nav-item">
-                    <a className="nav-link active" aria-current="page">Active</a>
-                </li>
-                <li className="nav-item">
-                    <a className="nav-link">Link</a>
-                </li>
-                <li className="nav-item">
-                    <a className="nav-link">Link</a>
-                </li>
-            </ul> */}
+            <input type="text" className={`form-control ${classes['search']}`} placeholder='search...' value={searchInput} onChange={updateSearchInputHandler} />
 
             <ul className={classes['tabs']}>
                 <li className={classes['tab-item'] + ' ' + navAllActiveClass}>
@@ -108,13 +126,23 @@ const FindFriendsPage = () => {
                 </li>
             </ul>
             <hr className={classes['hr-line-tab']} />
-            <div className={classes['card-container']}>
+            {/* <div className={classes['card-container']}>
                 {queryParamValue === 'all' && <h2>All</h2>}
                 {queryParamValue === 'following' && <h2>Following</h2>}
                 {queryParamValue === 'followers' && <h2>Followers</h2>}
-            </div>
+            </div> */}
+            {usersLoading &&
+                <div className="center">
+                    <LoadingSpinner />
+                </div>
+            }
             {
-                users.map(user => (
+                users.length <= 0 && <p>User not found</p>
+            }
+            {
+                !usersLoading &&
+                users.length > 0 &&
+                (users.map(user => (
                     <UserFollowCard
                         name={user.fname}
                         username={user.username}
@@ -125,7 +153,7 @@ const FindFriendsPage = () => {
                         id={user._id}
                         isLoading={user.isLoading}
                     />
-                ))
+                )))
             }
         </div>
     )
