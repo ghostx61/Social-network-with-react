@@ -24,10 +24,10 @@ export function formatDate3(date) {
     return moment(date).fromNow();
 }
 export function formatDate4(date) {
-    let newDate = moment(date).fromNow(true);
+    let newDate = moment(date).fromNow('ss');
     console.log(newDate);
-    newDate = newDate.split(' ');
-    newDate = newDate[0].replace('an', '1') + ' ' + newDate[1].charAt(0)
+    // newDate = newDate.split(' ');
+    // newDate = newDate[0].replace('an', '1') + ' ' + newDate[1].charAt(0)
     return newDate;
 }
 

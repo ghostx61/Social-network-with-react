@@ -9,6 +9,7 @@ import Modal from '../Ui/Modal';
 
 import classes from './Navbar.module.css';
 import LoadingSpinner from './LoadingSpinner';
+import useModal from '../hooks/use-modal';
 
 
 const Navbar = (props) => {
@@ -16,8 +17,12 @@ const Navbar = (props) => {
     const isAuth = useSelector(state => state.auth.isAuthenticated);
     const history = useHistory();
 
+    //post modal
+    const isPostModalOpen = useSelector(state => state.modal.isPostModalOpen);
+    const toggleModal = useModal();
+
     const [navDropdownActive, setNavDropdownActive] = useState(false);
-    const [showPostModal, setShowPostModal] = useState(false);
+    // const [showPostModal, setShowPostModal] = useState(false);
     const [uploadImage, setUploadImage] = useState(null);
     const [uploadImageFile, setUploadImageFile] = useState(null);
     const { userLogout } = useAuth();
@@ -28,16 +33,33 @@ const Navbar = (props) => {
     const [postBtnEnable, setPostBtnEnable] = useState(false);
     const [isPostUploading, setIsPostUploading] = useState(false);
     const [profileImg, setProfileImg] = useState('/profile-pic-default.webp');
+    const [screenView, setScreenView] = useState('desktop');
     const username = authData.username;
     // console.log(authData);
     // console.log('navbar render');
     useEffect(() => {
-        if (postTextInput.length > 0 || uploadImage) {
+        if (uploadImage) {
             setPostBtnEnable(true);
         } else {
             setPostBtnEnable(false);
         }
     }, [postTextInput, uploadImage])
+
+
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth > 600) {
+                setScreenView('desktop');
+            } else {
+                setScreenView('mobile');
+            }
+        };
+        handleResize();
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+
     useEffect(() => {
         const getUserData = async () => {
             // console.log(authData.token);
@@ -61,10 +83,11 @@ const Navbar = (props) => {
                 console.log(e.message);
             }
         }
-        if (username) {
+        if (username && screenView === 'desktop') {
             getUserData();
         }
-    }, [authData])
+    }, [authData]);
+
 
     const dropdownHandler = () => {
         setNavDropdownActive(state => !state);
@@ -77,10 +100,12 @@ const Navbar = (props) => {
         setNavDropdownActive(false);
     }
     const showPostModalHandler = () => {
-        setShowPostModal(true);
+        // setShowPostModal(true);
+        toggleModal.openModal('post');
     }
     const hidePostModalHandler = () => {
-        setShowPostModal(false);
+        // setShowPostModal(false);
+        toggleModal.closeModal('post');
         setPostTextInput('');
         removeImageHandler();
     }
@@ -146,10 +171,8 @@ const Navbar = (props) => {
                 }
                 // console.log(data);
                 // setProfileImg(data.result.secure_url);
-                setShowPostModal(false);
-                removeImageHandler();
+                hidePostModalHandler()
                 renderComponent('profilePage');
-                setPostTextInput('');
                 history.push('/profile/' + authData.username);
                 setIsPostUploading(false);
             } catch (e) {
@@ -173,57 +196,61 @@ const Navbar = (props) => {
         </Fragment>
     );
 
+    const postModalContainer = (
+        <Modal title="Create post" close={hidePostModalHandler}>
+            <form onSubmit={postSubmitHandler}>
+                <div className={classes['modal-container']}>
+                    <div className="mb-3">
+                        <textarea className="form-control" id={classes.postTextArea} rows="4" ref={postTextInputRef} value={postTextInput} onChange={postTextChangeHandler} maxLength='200'></textarea>
+                    </div>
+                    {!uploadImage && <label htmlFor={classes['upload-input']} className={classes['upload-label']}>
+
+                        <div className={`card ${classes['upload-card']}`}>
+                            <p>Add photo</p>
+                        </div>
+                    </label>}
+                    {uploadImage && <div className={`card ${classes['preview-image-container']}`} onClick={removeImageHandler}>
+                        <div className={classes['img-close-btn']}>
+                            <button type="button" className="btn-close"></button>
+                        </div>
+                        <img src={uploadImage} alt="preview" />
+                    </div>}
+                    <input type="file" name="photo1" accept="image/png, image/gif, image/jpeg" id={classes['upload-input']} onChange={addImageHandler} ref={uploadImageRef} />
+                </div>
+                {!isPostUploading &&
+                    <div className={`d-grid gap-2 ${classes['post-btn-container']}`}>
+                        <button className="btn btn-primary" type="submit" disabled={!postBtnEnable}>Post</button>
+                    </div>
+                }
+                {isPostUploading &&
+                    <div className={classes['spinner-container']}>
+                        <LoadingSpinner />
+                    </div>
+                }
+            </form>
+        </Modal>
+    )
+
     return (
         <Fragment>
             {
-                showPostModal && createPortal(
-                    <Modal title="Create post" close={hidePostModalHandler}>
-                        <form onSubmit={postSubmitHandler}>
-                            <div className={classes['modal-container']}>
-                                <div className="mb-3">
-                                    <textarea className="form-control" id={classes.postTextArea} rows="3" ref={postTextInputRef} value={postTextInput} onChange={postTextChangeHandler}></textarea>
-                                </div>
-                                {!uploadImage && <label htmlFor={classes['upload-input']} className={classes['upload-label']}>
-
-                                    <div className={`card ${classes['upload-card']}`}>
-                                        <p>Add photo</p>
-                                    </div>
-                                </label>}
-                                {uploadImage && <div className={`card ${classes['preview-image-container']}`} onClick={removeImageHandler}>
-                                    <div className={classes['img-close-btn']}>
-                                        <button type="button" className="btn-close"></button>
-                                    </div>
-                                    <img src={uploadImage} alt="preview" />
-                                </div>}
-                                <input type="file" name="photo1" accept="image/png, image/gif, image/jpeg" id={classes['upload-input']} onChange={addImageHandler} ref={uploadImageRef} />
-                            </div>
-                            {!isPostUploading &&
-                                <div className={`d-grid gap-2 ${classes['post-btn-container']}`}>
-                                    <button className="btn btn-primary" type="submit" disabled={!postBtnEnable}>Post</button>
-                                </div>
-                            }
-                            {isPostUploading &&
-                                <div className={classes['spinner-container']}>
-                                    <LoadingSpinner />
-                                </div>
-                            }
-                        </form>
-                        {/* </div> */}
-                    </Modal>,
-                    document.getElementById('modal-root'))
+                isPostModalOpen && createPortal(
+                    postModalContainer,
+                    document.getElementById('modal-root')
+                )
             }
             <nav className={classes['navbar-new']}>
                 <ul>
                     <li className={classes['nav-logo']}>
                         <Link to="/"><img src={`${process.env.PUBLIC_URL}/camera.png`} /> Social Network</Link>
                     </li>
-                    {isAuth && userNavLinks}
+                    {isAuth && screenView === 'desktop' && userNavLinks}
                 </ul>
-                {isAuth &&
+                {isAuth && screenView === 'desktop' &&
                     <ul className={classes['nav-right']}>
-                        <li>
+                        {/* <li>
                             <input type="text" placeholder="Search" className={classes['nav-search']} />
-                        </li>
+                        </li> */}
                         <li className={classes['profile-img']} onClick={dropdownHandler}>
                             {/* <Link to="/"> */}
                             <img src={profileImg} />
@@ -231,18 +258,37 @@ const Navbar = (props) => {
                         </li>
                     </ul>
                 }
-                {navDropdownActive && <div className={`card ${classes['nav-dropdown']}`}>
-                    <ul className="list-group list-group-flush" onClick={dropdownClickHandler}>
-                        <li className={`list-group-item ${classes['nav-dropdown-item']}`}>
-                            <Link to={`/profile/${username}`}>{username}</Link>
+                {/* Mobile view  */}
+                {isAuth && screenView === 'mobile' &&
+                    <ul className={classes['nav-right']}>
+                        {/* <li>
+                            <input type="text" placeholder="Search" className={classes['nav-search']} />
+                        </li> */}
+                        <li className={classes['mobile-settings']} onClick={dropdownHandler}>
+                            {/* <Link to="/"> */}
+                            <img src='/settings-white.svg' alt="settings menu" />
+                            {/* <img src='/dropdown-white.png' alt="settings menu" /> */}
+                            {/* </Link> */}
                         </li>
-                        {/* <li className={`list-group-item ${classes['nav-dropdown-item']}`}>
+                    </ul>
+                }
+                {navDropdownActive &&
+                    <Fragment>
+                        <div className={classes['overlay']} onClick={dropdownClickHandler}></div>
+                        <div className={`card ${classes['nav-dropdown']}`}>
+                            <ul className="list-group list-group-flush" onClick={dropdownClickHandler}>
+                                <li className={`list-group-item ${classes['nav-dropdown-item']}`}>
+                                    <Link to={`/profile/${username}`}>{username}</Link>
+                                </li>
+                                {/* <li className={`list-group-item ${classes['nav-dropdown-item']}`}>
                             <Link to={`/profile/sagar123/edit`}>edit</Link>
                         </li> */}
-                        <li className={`list-group-item ${classes['nav-dropdown-item']}`} onClick={logoutHandler}>Logout</li>
-                        {/* <li className="list-group-item">A third item</li> */}
-                    </ul>
-                </div>}
+                                <li className={`list-group-item ${classes['nav-dropdown-item']}`} onClick={logoutHandler}>Logout</li>
+                                {/* <li className="list-group-item">A third item</li> */}
+                            </ul>
+                        </div>
+                    </Fragment>
+                }
             </nav>
         </Fragment>
     );

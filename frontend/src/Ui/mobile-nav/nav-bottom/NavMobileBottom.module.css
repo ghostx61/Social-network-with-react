@@ -1,0 +1,26 @@
+.nav-main {
+  background-color: #343a40;
+  display: flex;
+  min-height: 50px;
+  /* padding: 0 30px; */
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+  z-index: 5;
+}
+
+.nav-img {
+  fill: white;
+}
+.nav-items {
+  margin: 10px 0;
+  width: 100%;
+  text-align: center;
+}
+.nav-items img {
+  width: 40px;
+}
+
+.profile-nav img {
+  border-radius: 50%;
+}

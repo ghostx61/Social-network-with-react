@@ -9,6 +9,8 @@ import PostModal from "../../Ui/PostModal/PostModal";
 import LoadingSpinner from "../../Ui/LoadingSpinner";
 import { useLocation } from "react-router-dom";
 import useScrollHomepage from "../../hooks/use-scroll-homepage";
+import PageMessage from "../../Ui/page-message/PageMessage";
+import useErrorHandler from "../../hooks/use-error-handler";
 
 
 const HomePage = () => {
@@ -26,6 +28,7 @@ const HomePage = () => {
     const postInputRef = useRef();
     const likeTimer = useRef(null);
     const location = useLocation();
+    const handleError = useErrorHandler();
 
     const [
         postInputValue,
@@ -43,9 +46,7 @@ const HomePage = () => {
             setActiveTab('photo');
         }
     }
-    const popupOpenHandler = (event) => {
 
-    }
     const postSubmitHandler = (event) => {
         event.preventDefault();
         const enteredPostInputValue = postInputValue;
@@ -62,7 +63,7 @@ const HomePage = () => {
     };
 
     //fetch placeholder image
-    const placeholderImg = 'https://res.cloudinary.com/ghostx61/image/upload/v1691596333/frx77nhswvhsz9po7vdw.jpg';
+    const placeholderImg = "/profile-pic-default.webp";
     useEffect(() => {
         const image = new Image();
         image.src = placeholderImg;
@@ -92,6 +93,7 @@ const HomePage = () => {
             });
             if (error) {
                 console.log(error);
+                handleError(error);
                 return;
             }
             console.log(data);
@@ -140,7 +142,8 @@ const HomePage = () => {
                 }
             });
             if (error) {
-                return console.log(error);
+                console.log(error);
+                handleError(error);
             }
             console.log(likeData);
             console.log('scroll y ' + window.pageYOffset);
@@ -212,27 +215,6 @@ const HomePage = () => {
         <Fragment>
             {/* Post modal  */}
             {showPost && createPortal(<PostModal close={closePostModal} data={postModalData} likeBtnClick={likeBtnHandler} commentSubmit={addNewCommentHandler} isOwner={false} />, document.getElementById('modal-root'))}
-            <h3>Home</h3>
-            <div className="card" style={{ marginBottom: '15px' }}>
-                {/* <div className="card-body">
-                    <div className={classes.tabs}>
-                        <div className={`${classes['post-tab']} ${classes['text-tab']} ${togglePostClass}`} onClick={togglePostHanlder.bind(this, 'post')}>Post</div>
-                        <div className={`${classes['post-tab']} ${classes['photo-tab']} ${togglePhotoClass}`} onClick={togglePostHanlder.bind(this, 'photo')}>Photo</div>
-                    </div>
-                    <div className={classes.content}>
-
-                        {activeTab === 'post' && postForm}
-                        {activeTab === 'photo' && <h4>Photo</h4>}
-                    </div>
-                </div> */}
-                <div className="card-body">
-                    <textarea rows="1" className={`form-control ${classes['newUploadBtn']}`} placeholder="Write Something..." onClick={popupOpenHandler}></textarea>
-                    {/* <div className={`${classes.popupBtnContainer}`}>
-                        <div className={`${classes.popupBtn} ${classes.postPopupBtn}`}><img src={photoIcon} alt="Photo" /> Write Something</div>
-                        <div className={`${classes.popupBtn} ${classes.photoPopupBtn}`}><img src={photoIcon} alt="Photo" /> Upload Photo</div>
-                    </div> */}
-                </div>
-            </div>
             {arePostsLoading && (
                 <div className="center">
                     <LoadingSpinner />
@@ -258,6 +240,16 @@ const HomePage = () => {
                     onCommentsClick={openPostModal}
                 />
             )
+            }
+            {!arePostsLoading && allPosts.length <= 0 &&
+                <PageMessage
+                    title='Follow People'
+                    body='When you follow people, their posts will appear on your home feed'
+                    showImg='plus'
+                    url='/find-friends'
+                    btnText='Find friends'
+                    mt={200}
+                />
             }
         </Fragment>
     );

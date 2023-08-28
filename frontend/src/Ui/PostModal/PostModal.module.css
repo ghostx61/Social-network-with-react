@@ -2,20 +2,26 @@
   z-index: 100;
   /* max-width: 1100px; */
   width: auto;
-  top: 18vh;
+  top: 12vh;
   left: 50%;
   width: 90%;
   /* height: 80%; */
   transform: translateX(-50%);
   position: fixed;
   box-sizing: border-box;
+  border-radius: 5px;
+  overflow: hidden;
+  display: block;
+}
+.modal-mobile {
+  display: none;
 }
 .backdrop {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 100vh;
+  height: 100%;
   z-index: 99;
   background-color: rgba(0, 0, 0, 0.75);
 }
@@ -81,11 +87,13 @@ img.post-image {
 .hr-line {
   margin: 0;
   opacity: 0.15;
+  color: black;
 }
 .comments-container {
   padding: 10px 15px;
   height: 100%;
   overflow-y: scroll;
+  min-height: 250px;
 }
 .comment {
   margin-bottom: 6px;
@@ -146,4 +154,83 @@ img.post-image {
 .delete-btn {
   margin-left: 30px;
   cursor: pointer;
+}
+
+.mobile-header-container,
+.mobile-text-container {
+  display: none;
+}
+
+.pin-icon {
+  height: 12px;
+  transform: rotate(45deg);
+  margin-right: 4px;
+}
+.mobile-scroll-container {
+  overflow-y: scroll;
+}
+
+/* under 800px */
+@media only screen and (max-width: 800px) {
+  .post-modal {
+    top: 2vh;
+    height: 97%;
+    overflow: scroll;
+    display: flex;
+    align-items: center;
+  }
+  .modal-desktop {
+    display: none;
+  }
+  .post-container {
+    flex-direction: column;
+    overflow: hidden;
+    max-height: unset;
+    border-radius: 5px;
+    width: 100%;
+  }
+  .post-right-container {
+    width: 100%;
+  }
+  .mobile-header-container.post-right-header-container {
+    display: block;
+    background-color: white;
+    border-radius: 6px 6px 0 0;
+    padding: 3px 15px;
+    border-bottom: 1px solid rgb(128 128 128 / 42%);
+  }
+  .mobile-text-container {
+    display: block;
+    padding: 5px 15px;
+    font-size: 0.8rem;
+  }
+  .mobile-scroll-container {
+    max-height: 70vh;
+  }
+  .post-left-section {
+    border-radius: 0;
+  }
+  .post-right-header-container {
+    display: none;
+  }
+  .post-right-section {
+    border-radius: 0;
+  }
+  .close-btn {
+    align-self: center;
+  }
+  .post-image {
+    max-height: 400px;
+  }
+  .comments-container {
+    max-height: 300px;
+    overflow-y: unset;
+  }
+}
+
+/* under 500px */
+@media only screen and (max-width: 500px) {
+  .post-modal {
+    width: 98%;
+  }
 }

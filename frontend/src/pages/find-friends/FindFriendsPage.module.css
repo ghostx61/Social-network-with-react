@@ -1,7 +1,9 @@
 .search {
   margin-bottom: 15px;
 }
-
+.main-container {
+  margin: 0 6px;
+}
 /* tabs  */
 .tabs {
   list-style: none;

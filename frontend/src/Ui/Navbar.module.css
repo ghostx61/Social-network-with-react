@@ -55,6 +55,10 @@
   cursor: pointer;
 }
 
+.mobile-settings > img {
+  width: 25px;
+}
+
 .navbar-main {
   background-color: #343a40;
   padding-left: 20px;
@@ -111,6 +115,7 @@
   right: 27px;
   top: 52px;
   min-width: 150px;
+  z-index: 5;
 }
 .nav-dropdown-item {
   cursor: pointer;
@@ -118,6 +123,7 @@
 .nav-dropdown-item > a {
   text-decoration: none;
   color: black;
+  display: block;
 }
 
 /* Modal  */
@@ -127,6 +133,15 @@
 }
 #postTextArea {
   resize: none;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 4;
 }
 
 .upload-image-btn {
@@ -199,7 +214,15 @@
 
 .spinner-container {
   text-align: center;
+  margin-top: 5px;
 }
 /* .preview-image-container > img {
   max-height: 200px;
 } */
+
+/* under 500px */
+@media only screen and (max-width: 600px) {
+  .nav-dropdown-item {
+    padding: 15px;
+  }
+}

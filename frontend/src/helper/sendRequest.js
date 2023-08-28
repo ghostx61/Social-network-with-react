@@ -27,7 +27,13 @@ const sendRequest = async (options) => {
         const response = await fetch(API_URL + options.url, fetchOptions);
         data = await response.json();
         if (!response.ok) {
-            error = data.errors[0].msg;
+            if (data.errors) {
+                error = data.errors[0].msg;
+            } else {
+                error = 'Server error';
+            }
+            // console.log('error');
+            // console.log(error);
             return [null, error];
         }
         return [data, error];

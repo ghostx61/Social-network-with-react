@@ -10,6 +10,9 @@ const auth = async (req, res, next) => {
     }
     // console.log(token);
 
+    //test
+    // return res.status(400).json({ errors: [{ msg: 'Authorization failed' }] });
+    //test
     try {
         //Validate token
         const decodedToken = jwt.verify(token, process.env.JWTSECRET);

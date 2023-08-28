@@ -5,7 +5,7 @@ const Modal = (props) => {
     const [showModal, setShowModal] = useState(true);
     return (
         <Fragment>
-            <div className={classes.backdrop}></div>
+            <div className={classes.backdrop} onClick={props.close}></div>
             <div className={`card ${classes['post-modal']}`}>
                 <div className={classes['card-title-container']}>
                     <h3 className={classes['title']}>{props.title || ''}</h3>

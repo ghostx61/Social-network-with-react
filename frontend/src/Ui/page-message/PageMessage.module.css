@@ -1,0 +1,23 @@
+.message-container {
+  text-align: center;
+  margin: 0 15px;
+}
+.message-container > h2 {
+  font-weight: 800;
+}
+
+.message-container > p {
+  font-size: 1.1rem;
+}
+.message-container > a {
+  text-decoration: none;
+  font-size: 1.2rem;
+}
+.message-container > button {
+  text-decoration: none;
+  font-size: 1.2rem;
+}
+.message-container > img {
+  height: 50px;
+  margin-bottom: 12px;
+}

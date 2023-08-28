@@ -29,7 +29,7 @@ const Post = (props) => {
                     {likeSvg} {props.likesCount}
                 </span> */}
                 <LikeButton count={props.likesCount} likeBtnClick={props.onLikeClick.bind(this, props.postId, props.isPostLiked, props.likesCount, props.index)} isLiked={props.isPostLiked} />
-                <CommentButton count={props.commentsCount} />
+                <CommentButton count={props.commentsCount} btnClick={props.onCommentsClick.bind(this, props.index)} />
                 {/* <span>
                     {commentSvg} {props.commentsCount}
                 </span> */}
@@ -50,7 +50,7 @@ const Post = (props) => {
                     </div>
                 ))
                 }
-                <p className={classes['view-more-comments']} onClick={props.onCommentsClick.bind(this, props.index)}>view all comments</p>
+                {props.commentsCount > 0 && <p className={classes['view-more-comments']} onClick={props.onCommentsClick.bind(this, props.index)}>view all comments</p>}
                 {/* <p>3,022 likes</p> */}
             </div>
         </div >

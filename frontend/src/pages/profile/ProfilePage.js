@@ -13,10 +13,14 @@ import PostModal from '../../Ui/PostModal/PostModal';
 import TopModal from '../../Ui/TopModal/TopModal';
 import useAuth from '../../hooks/use-Auth';
 import FollowButton from '../../Ui/buttons/follow-button/FollowButton';
+import PageMessage from '../../Ui/page-message/PageMessage';
+import useModal from '../../hooks/use-modal';
+import useErrorHandler from '../../hooks/use-error-handler';
 
 const ProfilePage = () => {
     const authData = useSelector(state => state.auth);
     const renderComponent = useSelector(state => state.render.renderProfilePage);
+    const toggleModal = useModal();
     const auth = useAuth();
     const history = useHistory();
     const [isLoading, setIsLoading] = useState(false);
@@ -29,6 +33,7 @@ const ProfilePage = () => {
     const { username: pageUsername } = useParams();
     const placeholderImg = '/profile-pic-default.webp';
     const isProfileOwner = (pageUsername === authData.username);
+    const handleError = useErrorHandler();
     // console.log(currUsername);
     // console.log('profile page render')
     // console.log(renderComponent)
@@ -47,8 +52,7 @@ const ProfilePage = () => {
             });
             if (error) {
                 console.log(error);
-                history.replace('/error');
-                return;
+                handleError(error);
             }
             data.createdAt = formatDate2(data.createdAt);
             if (data.dob) data.dob = formatDate2(data.dob);
@@ -71,7 +75,8 @@ const ProfilePage = () => {
             }
         });
         if (error) {
-            return console.log(error);
+            console.log(error);
+            handleError(error);
         }
         console.log(commentData);
         return await commentData;
@@ -140,7 +145,8 @@ const ProfilePage = () => {
                 }
             });
             if (error) {
-                return console.log(error);
+                console.log(error);
+                handleError(error);
             }
             console.log(likeData);
         }, 1000);
@@ -188,7 +194,8 @@ const ProfilePage = () => {
             }
         });
         if (error) {
-            return console.log(error);
+            console.log(error);
+            handleError(error);
         }
         //logout user
         auth.userLogout();
@@ -216,11 +223,16 @@ const ProfilePage = () => {
             body
         });
         if (error) {
-            return console.log(error);
+            console.log(error);
+            handleError(error);
         }
         // change follow status locally
         setUser(prevState => ({ ...prevState, isFollowing, followingCount: isFollowing ? prevState.followingCount + 1 : prevState.followingCount - 1 }));
         setIsFollowBtnLoading(false);
+    }
+
+    const openUploadPostModal = () => {
+        toggleModal.openModal('post');
     }
 
     return (
@@ -241,7 +253,7 @@ const ProfilePage = () => {
                     close={closePostModal}
                     data={postModalData}
                     likeBtnClick={likeBtnHandler}
-                    isOwner={true}
+                    isOwner={isProfileOwner}
                     deletePost={deletePostHandler}
                     commentSubmit={addNewCommentHandler} />,
                 document.getElementById('modal-root'))}
@@ -283,7 +295,7 @@ const ProfilePage = () => {
                 </div>
             </div>}
             {/* <Post /> */}
-            <div className={classes['posts-grid']}>
+            {!isLoading && <div className={classes['posts-grid']}>
                 {
                     userPosts.map((postItem, index) => {
                         return (
@@ -293,7 +305,19 @@ const ProfilePage = () => {
                         );
                     })
                 }
-            </div>
+            </div>}
+            {
+                !isLoading && userPosts.length <= 0 &&
+                <PageMessage
+                    title='Post your photos'
+                    body="When you post photos, they will appear on your profile."
+                    url=''
+                    btnText='Upload photo'
+                    mt={15}
+                    showImg='user'
+                    onClickFtn={openUploadPostModal}
+                />
+            }
         </Fragment>
     );
 }

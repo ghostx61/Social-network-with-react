@@ -7,6 +7,8 @@ import { useEffect, useRef, useState } from 'react';
 import sendRequest from '../../helper/sendRequest';
 import { useSelector } from 'react-redux';
 import LoadingSpinner from '../../Ui/LoadingSpinner';
+import PageMessage from '../../Ui/page-message/PageMessage';
+import useErrorHandler from '../../hooks/use-error-handler';
 
 const FindFriendsPage = () => {
     const [searchInput, setSearchInput] = useState('');
@@ -14,6 +16,7 @@ const FindFriendsPage = () => {
     const [queryParamValue, setQueryParamValue] = useState('');
     const location = useLocation();
     const history = useHistory();
+    const handleError = useErrorHandler();
 
     // Access individual query parameters
     useEffect(() => {
@@ -45,7 +48,8 @@ const FindFriendsPage = () => {
         let url = '/user/search?select=fname,lname,username,profileImg&searchTerm=' + searchInput;
         if (queryParamValue === 'following') url += '&isFollowing=true';
         if (queryParamValue === 'followers') url += '&isFollower=true';
-        //console.log('get users');
+        console.log('get users ' + queryParamValue);
+        if (!queryParamValue) return;
         setUsersLoading(true);
         const [data, error] = await sendRequest({
             method: 'GET',
@@ -56,7 +60,8 @@ const FindFriendsPage = () => {
             }
         });
         if (error) {
-            return console.log(error);
+            console.log(error);
+            handleError(error);
         }
         console.log(data.users);
         setUsers(data.users.map(el => {
@@ -66,8 +71,8 @@ const FindFriendsPage = () => {
         setUsersLoading(false);
     }
 
-    // run user function
     useEffect(() => {
+        // run user function
         getUsers();
     }, [queryParamValue]);
 
@@ -92,7 +97,8 @@ const FindFriendsPage = () => {
             body
         });
         if (error) {
-            return console.log(error);
+            console.log(error);
+            handleError(error);
         }
         // change follow status locally
         setUsers(prevState => prevState.map(el => el._id === followerId ? { ...el, isFollowing: isFollowing, isLoading: false } : el));
@@ -110,8 +116,8 @@ const FindFriendsPage = () => {
 
 
     return (
-        <div>
-            <h1>Find friends</h1>
+        <div className={classes['main-container']}>
+            {/* <h1>Find friends</h1> */}
             <input type="text" className={`form-control ${classes['search']}`} placeholder='search...' value={searchInput} onChange={updateSearchInputHandler} />
 
             <ul className={classes['tabs']}>
@@ -137,7 +143,24 @@ const FindFriendsPage = () => {
                 </div>
             }
             {
-                users.length <= 0 && <p>User not found</p>
+                !usersLoading && users.length <= 0 && queryParamValue === 'following' &&
+                <PageMessage
+                    title='Follow people'
+                    body="When you follow someone, their posts appear in your home feed"
+                    mt={40}
+                    btnText="Find friends"
+                    url="/find-friends?path=all"
+                    showImg='user'
+                />
+            }
+            {
+                !usersLoading && users.length <= 0 && queryParamValue === 'followers' &&
+                <PageMessage
+                    title='No followers'
+                    body="Ask your friends to follow you on Social Network"
+                    mt={40}
+                    showImg='user'
+                />
             }
             {
                 !usersLoading &&

@@ -14,12 +14,14 @@ import EditProfilePage from './pages/profile/EditProfilePage';
 import ImageCropper from './Ui/image-crop/ImageCropper';
 import ErrorPage from './pages/error/ErrorPage';
 import FindFriendsPage from './pages/find-friends/FindFriendsPage';
+import NavMobileBottom from './Ui/mobile-nav/nav-bottom/NavMobileBottom';
 
 
 function App() {
   const token = localStorage.getItem('token');
   const authData = useSelector(state => state.auth);
   const isAuth = useSelector(state => state.auth.isAuthenticated);
+  const [screenView, setScreenView] = useState('desktop');
   const { userLogin } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   // console.log('app render');
@@ -49,9 +51,23 @@ function App() {
     checkAuth();
   }, []);
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 600) {
+        setScreenView('desktop');
+      } else {
+        setScreenView('mobile');
+      }
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const postUpdateHandler = () => {
     console.log('post update');
   }
+
 
   const authRoutes = (
     <Switch>
@@ -107,9 +123,9 @@ function App() {
             </Fragment>
           }
           {isLoading && <div className='center'><LoadingSpinner /></div>}
-
         </section>
       </main>
+      {isAuth && screenView === 'mobile' && <NavMobileBottom />}
     </Fragment>
   );
 }
