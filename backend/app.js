@@ -28,8 +28,6 @@ app.use(cors());
 app.use(methodOverride("_method"));
 app.locals.moment = require('moment');
 
-app.set("view engine", "ejs");
-app.use(flash());
 
 //for jquery
 var jsdom = require("jsdom");
@@ -52,7 +50,7 @@ cloudinary.config({
 
 //DATABASEURL variable for mongoAtlas
 mongoose.set("strictQuery", false); // to remove mongoose warning
-mongoose.connect(process.env.DATABASE_URL || "mongodb://localhost:27017/mongoDemo_v7", { useNewUrlParser: true }).
+mongoose.connect(process.env.DATABASE_URL, { useNewUrlParser: true }).
   then(res => {
     console.log('connnected to DATABASE');
   })
@@ -72,10 +70,10 @@ passport.use(new localStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-app.use(function (req, res, next) {
-  res.locals.message = req.flash("error");
-  next();
-});
+// app.use(function (req, res, next) {
+//   res.locals.message = req.flash("error");
+//   next();
+// });
 
 app.use("/api/profile", profileRoutes);
 app.use("/api/auth", authRoutes);
@@ -95,8 +93,9 @@ app.post('/api/ytest', (req, res) => {
 app.use('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/build/', 'index.html'));
 });
-//PORT variable for heroku deploy
-app.listen(process.env.PORT || 3100, function () {
-  console.log("Server running on port 3100");
+//PORT variable for deploy
+const PORT = process.env.PORT || 3100;
+app.listen(PORT, function () {
+  console.log(`Server running on port ${PORT}`);
 });
 

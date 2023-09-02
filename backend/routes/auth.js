@@ -37,26 +37,6 @@ router.post("/signup", [
     check('email', 'Enter a valid email address').isEmail(),
     check('password', 'Enter a password with 6 or more characters').isLength({ min: 6 })
 ], async function (req, res) {
-    //old version
-    // var user = {
-    //     fname: req.body.fname,
-    //     lname: req.body.lname,
-    //     email: req.body.email,
-    //     username: req.body.username
-    // }
-    // User.register(user, req.body.password, function (err, user) {
-    //     if (err) {
-    //         console.log(err);
-    //         req.flash("error", err.message);
-    //         return res.redirect("/signup");
-    //     }
-    //     passport.authenticate("local")(req, res, function () {
-    //         res.redirect("/profile/" + req.user.username);
-    //     });
-    // });]
-
-    //NEW VERSION
-
     // Validate request body
     const errors = validationResult(req);
     // console.log(req.body);
@@ -111,14 +91,6 @@ router.post("/signup", [
     }
 });
 
-//user login
-// router.post("/login", passport.authenticate("local", {
-//     successRedirect: "/signup",
-//     failureRedirect: "/",
-//     failureFlash: true
-// }), function (req, res) {
-//     res.send('login success');
-// });
 
 //POST |   Login User  |  /api/auth/login
 router.post('/login', [

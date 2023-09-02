@@ -1,6 +1,6 @@
 
 const sendRequest = async (options) => {
-    const API_URL = 'http://localhost:3100/api';
+    const API_URL = process.env.API_URL || 'http://localhost:3100/api';
     let data = null;
     let error = null;
     let fetchOptions = {
