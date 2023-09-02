@@ -79,6 +79,18 @@ const HomePage = () => {
         };
     }, []);
 
+    // scroll to last scroll position
+    useEffect(() => {
+        setTimeout(() => {
+            console.log('new scroll ' + window);
+            window.scrollTo({
+                top: scrollData.scrollY,
+                behavior: 'instant' // Set the behavior to "instant" for instant scrolling
+            });
+        }, 100);
+    }, []);
+
+
     // get post feed
     useEffect(() => {
         setArePostsLoading(true);
@@ -105,10 +117,6 @@ const HomePage = () => {
             console.log(window);
             console.log('scroll value: ' + scrollData.scrollY);
             // window.scrollTo(0, scrollData.scrollY);
-            document.documentElement.scrollTo({
-                top: scrollData.scrollY,
-                behavior: 'instant' // Set the behavior to "instant" for instant scrolling
-            });
         }
         // getAllPosts();
         if (location.pathname === '/') {
