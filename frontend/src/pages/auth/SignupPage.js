@@ -7,10 +7,12 @@ import useTimeout from '../../hooks/use-timeout';
 import sendRequest from '../../helper/sendRequest';
 import useInput from '../../hooks/use-input';
 import useAuth from '../../hooks/use-Auth';
+import LoadingSpinner from '../../Ui/LoadingSpinner';
 
 const SignupPage = () => {
     const [isAlert, setIsAlert] = useTimeout(null, 4);
     const { userLogin } = useAuth();
+    const [isFormSubmitting, setIsFormSubmitting] = useState(false);
     const [
         fnameInput,
         setFnameInput,
@@ -66,7 +68,8 @@ const SignupPage = () => {
 
     const submitHandler = async (event) => {
         event.preventDefault();
-        console.log(fnameInput);
+        setIsFormSubmitting(true);
+        // console.log(fnameInput);
         // check form validity
         let isFormValid = true;
         if (fnameInput.length < 1) {
@@ -110,6 +113,7 @@ const SignupPage = () => {
             return;
         }
         console.log(data);
+        setIsFormSubmitting(false);
         userLogin(data);
     }
     return <Fragment>
@@ -177,7 +181,12 @@ const SignupPage = () => {
                     value={passwordInput}
                     change={passwordInputChangeHandler}
                 />
-                <button className={classes.button}>Sign up</button>
+                {!isFormSubmitting && <button className={classes.button}>Sign up</button>}
+                {isFormSubmitting &&
+                    <div className="center">
+                        <LoadingSpinner />
+                    </div>
+                }
             </form>
         </div>
         <div className={`${classes.card} ${classes['form-sub']}`}>

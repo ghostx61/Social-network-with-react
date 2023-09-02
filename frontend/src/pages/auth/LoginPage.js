@@ -7,11 +7,13 @@ import classes from "./LoginPage.module.css";
 import sendRequest from '../../helper/sendRequest';
 import useAuth from '../../hooks/use-Auth';
 import useInput from '../../hooks/use-input';
+import LoadingSpinner from '../../Ui/LoadingSpinner';
 
 
 const LoginPage = () => {
     const [isAlert, setIsAlert] = useTimeout(null, 4);
     const { userLogin } = useAuth();
+    const [isFormSubmitting, setIsFormSubmitting] = useState(false);
 
     const [
         usernameInput,
@@ -35,6 +37,7 @@ const LoginPage = () => {
 
     const submitHandler = async (event) => {
         event.preventDefault();
+        setIsFormSubmitting(true);
         // validate fields
         let isFormValid = true;
         if (usernameInput.length <= 5) {
@@ -60,6 +63,7 @@ const LoginPage = () => {
         console.log(data);
         //login user
         userLogin(data);
+        setIsFormSubmitting(false);
     }
     return (
         <Fragment>
@@ -91,7 +95,12 @@ const LoginPage = () => {
                         value={passwordInput}
                         change={passwordInputChangeHandler}
                     />
-                    <button className={classes.button}>Log in</button>
+                    {!isFormSubmitting && <button className={classes.button}>Log in</button>}
+                    {isFormSubmitting &&
+                        <div className="center">
+                            <LoadingSpinner />
+                        </div>
+                    }
                 </form>
             </div>
             <div className={`${classes.card} ${classes['form-sub']}`}>
