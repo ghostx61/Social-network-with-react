@@ -1,7 +1,7 @@
 
 const sendRequest = async (options) => {
     const API_URL = process.env.REACT_APP_API_URL;
-    console.log('api url: ' + API_URL);
+    // console.log('api url: ' + API_URL);
     let data = null;
     let error = null;
     let fetchOptions = {
@@ -24,7 +24,7 @@ const sendRequest = async (options) => {
         delete fetchOptions.headers;
     }
     try {
-        console.log(API_URL + options.url, fetchOptions);
+        // console.log(API_URL + options.url, fetchOptions);
         const response = await fetch(API_URL + options.url, fetchOptions);
         data = await response.json();
         if (!response.ok) {

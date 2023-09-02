@@ -101,7 +101,9 @@ const HomePage = () => {
             setLikesCountArr(data.posts.map(el => ({ likesCount: el.likesCount, isPostLiked: el.isPostLiked })));
             setCommentsArr(data.posts.map(el => ({ comments: [...el.comment], commentsCount: el.commentsCount })));
             setArePostsLoading(false);
-            console.log(scrollData.scrollY);
+            console.log("window:");
+            console.log(window);
+            console.log('scroll value: ' + scrollData.scrollY);
             // window.scrollTo(0, scrollData.scrollY);
             window.scrollTo({
                 top: scrollData.scrollY,

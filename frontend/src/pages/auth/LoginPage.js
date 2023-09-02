@@ -56,6 +56,7 @@ const LoginPage = () => {
             url: '/auth/login',
             body
         });
+        setIsFormSubmitting(false);
         if (error) {
             setIsAlert(error);
             return;
@@ -63,7 +64,6 @@ const LoginPage = () => {
         console.log(data);
         //login user
         userLogin(data);
-        setIsFormSubmitting(false);
     }
     return (
         <Fragment>

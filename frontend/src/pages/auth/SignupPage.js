@@ -107,13 +107,13 @@ const SignupPage = () => {
             url: '/auth/signup',
             body
         });
+        setIsFormSubmitting(false);
         if (error) {
             console.log(error);
             setIsAlert(error);
             return;
         }
         console.log(data);
-        setIsFormSubmitting(false);
         userLogin(data);
     }
     return <Fragment>

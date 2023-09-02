@@ -9,7 +9,7 @@ const homepageScrollSlice = createSlice({
     initialState,
     reducers: {
         setScrollPosY(state, action) {
-            console.log(action.payload);
+            // console.log(action.payload);
             return {
                 scrollY: action.payload
             }
