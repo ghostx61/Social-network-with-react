@@ -105,7 +105,7 @@ const HomePage = () => {
             console.log(window);
             console.log('scroll value: ' + scrollData.scrollY);
             // window.scrollTo(0, scrollData.scrollY);
-            window.scrollTo({
+            document.documentElement.scrollTo({
                 top: scrollData.scrollY,
                 behavior: 'instant' // Set the behavior to "instant" for instant scrolling
             });
