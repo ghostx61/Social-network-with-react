@@ -45,6 +45,5 @@ This project is deployed on render.com. To see the app working, go to [link](htt
    - install frontend dependencies : `npm run install-client`
    - build frontend : `npm run build-client`
    - start server: `npm run start-server`
-   - 
 
 7. The project is now running on your machine on port 3100. Open this link in your browser: http://localhost:3100  
