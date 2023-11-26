@@ -201,7 +201,7 @@ const Navbar = (props) => {
             <form onSubmit={postSubmitHandler}>
                 <div className={classes['modal-container']}>
                     <div className="mb-3">
-                        <textarea className="form-control" id={classes.postTextArea} rows="4" ref={postTextInputRef} value={postTextInput} onChange={postTextChangeHandler} maxLength='200'></textarea>
+                        <textarea className="form-control" id={classes.postTextArea} rows="4" ref={postTextInputRef} value={postTextInput} onChange={postTextChangeHandler} maxLength='200' placeholder="Write something about your post..."></textarea>
                     </div>
                     {!uploadImage && <label htmlFor={classes['upload-input']} className={classes['upload-label']}>
 
