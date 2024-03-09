@@ -97,7 +97,7 @@ router.put('/edit',
     check('email', 'Enter a valid email address').isEmail()],
     async (req, res) => {
         try {
-            console.log(req.body);
+            // console.log(req.body);
             const errors = validationResult(req);
             // console.log(req.body);
             if (!errors.isEmpty()) {
@@ -130,7 +130,7 @@ router.post('/img', auth, upload.single('image'), async (req, res) => {
         // save image in cloudinary 
         const newImage = req.body.newImage;
         //console.log(newImage);
-        console.log(req.headers['content-type']);
+        // console.log(req.headers['content-type']);
         var result = await cloudinary.v2.uploader.upload(newImage);
         //save image url in database
         const updateQuery = { profileImg: result.secure_url, profileImgId: result.public_id };
@@ -156,7 +156,7 @@ router.delete('/', auth, async (req, res) => {
 
         //if user not found, end session
         if (!deletedUser) {
-            console.log('User not found.');
+            // console.log('User not found.');
             await session.abortTransaction();
             session.endSession();
             return;
@@ -181,7 +181,7 @@ router.delete('/', auth, async (req, res) => {
 
         // If all queries are executed successfully, commit changes
         await session.commitTransaction();
-        console.log('User and their posts deleted.');
+        // console.log('User and their posts deleted.');
         res.status(201).json({ success: true });
 
     } catch (err) {

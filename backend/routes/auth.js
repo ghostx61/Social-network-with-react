@@ -8,8 +8,8 @@ require('dotenv').config()
 
 const auth = require('../middleware/auth');
 var User = require("../models/user");
-const expiresIn = process.env.ENVIRONMENT === 'dev' ? '10h' : '1h';
-console.log(expiresIn);
+const expiresIn = process.env.ENVIRONMENT === 'dev' ? '24h' : '1h';
+// console.log(expiresIn);
 
 
 //signup
@@ -86,7 +86,7 @@ router.post("/signup", [
             }
         );
     } catch (err) {
-        console.log(err.message)
+        console.log(err.message);
         return res.status(500).json({ errors: [{ msg: 'Server Error' }] });
     }
 });
@@ -100,7 +100,7 @@ router.post('/login', [
     try {
         // Validate request body
         const errors = validationResult(req);
-        console.log(req.body);
+        // console.log(req.body);
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }

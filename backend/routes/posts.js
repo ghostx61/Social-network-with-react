@@ -81,7 +81,7 @@ router.get('/:postId',
                     path: 'user',
                     select: 'username email'
                 }).populate('comment');
-            console.log(post)
+            // console.log(post)
             res.json(post);
         } catch (err) {
             console.log(err.message);
@@ -103,7 +103,7 @@ router.post('/new', auth, upload.single('photo1'), async (req, res) => {
             // save image in cloudinary 
             const newImage = req.file.path;
             var result = await cloudinary.v2.uploader.upload(newImage);
-            console.log(result);
+            // console.log(result);
             //add image to body
             postBody.photo = result.secure_url;
             postBody.type = 'photo'
@@ -180,7 +180,7 @@ router.delete("/:postId", auth, async function (req, res) {
             _id: req.params.postId,
             user: req.user.id
         }, { session })
-        console.log(deletedPost);
+        // console.log(deletedPost);
 
         //if user not found, end session
         if (!deletedPost) {

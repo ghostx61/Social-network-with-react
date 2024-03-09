@@ -40,7 +40,7 @@ router.get("/search", auth, async (req, res) => {
             selectedFields = req.query.select.replace(/,/g, ' ');
             newQuery = newQuery.select(selectedFields);
         }
-        console.log(userId);
+        // console.log(userId);
         newQuery = newQuery.populate(
             {
                 path: 'follower',

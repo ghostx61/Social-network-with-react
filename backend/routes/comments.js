@@ -25,7 +25,7 @@ router.post('/',
                 post: req.body.postId
             });
             const savedComment = await newComment.save();
-            console.log(savedComment);
+            // console.log(savedComment);
             res.status(201).json({ success: true, comment: savedComment });
         } catch (err) {
             console.log(err.message)
@@ -37,10 +37,10 @@ router.post('/',
 
 router.get('/post/:postId', auth, async (req, res) => {
     try {
-        console.log(req.params)
+        // console.log(req.params)
         const postId = req.params.postId;
         const comments = await Comment.find({ post: postId }).sort({ createdAt: -1 });
-        console.log(comments);
+        // console.log(comments);
         res.status(200).json(comments);
     } catch (err) {
         console.log(err.message);
