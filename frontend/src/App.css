@@ -4,9 +4,15 @@
 section {
   margin: auto;
   margin-top: 70px;
-  max-width: 30rem;
+
   margin-bottom: 15px;
   position: relative;
+}
+.section-1 {
+  max-width: 30rem;
+}
+.section-2 {
+  margin: 0 100px;
 }
 
 /* under 500px */

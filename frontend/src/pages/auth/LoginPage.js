@@ -66,7 +66,7 @@ const LoginPage = () => {
       setIsAlert(error);
       return;
     }
-    console.log(data);
+    // console.log(data);
     //login user
     userLogin(data);
   };
