@@ -189,6 +189,7 @@ const Navbar = (props) => {
         <NavLink
           to="/find-friends"
           activeClassName={classes["nav-link-active"]}
+          exact
         >
           Find friends
         </NavLink>

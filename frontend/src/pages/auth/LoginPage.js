@@ -7,11 +7,13 @@ import classes from "./LoginPage.module.css";
 import sendRequest from "../../helper/sendRequest";
 import useAuth from "../../hooks/use-Auth";
 import useInput from "../../hooks/use-input";
+import useSession from "../../hooks/use-session";
 import LoadingSpinner from "../../Ui/LoadingSpinner";
 
 const LoginPage = () => {
   const [isAlert, setIsAlert] = useTimeout(null, 4);
   const { userLogin } = useAuth();
+  const { updateSession } = useSession();
   const [isFormSubmitting, setIsFormSubmitting] = useState(false);
 
   const [
@@ -60,6 +62,8 @@ const LoginPage = () => {
       url: "/auth/login",
       body,
     });
+    console.log("login result");
+    console.log(data);
     setIsFormSubmitting(false);
     if (error) {
       //   console.log(error);
@@ -67,6 +71,9 @@ const LoginPage = () => {
       return;
     }
     // console.log(data);
+    // console.log(data.username);
+    //track login in session
+    updateSession("login", usernameInput);
     //login user
     userLogin(data);
   };

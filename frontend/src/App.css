@@ -12,7 +12,8 @@ section {
   max-width: 30rem;
 }
 .section-2 {
-  margin: 0 100px;
+  margin-left: 100px;
+  margin-right: 100px;
 }
 
 /* under 500px */

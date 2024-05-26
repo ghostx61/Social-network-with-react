@@ -16,17 +16,20 @@ import ErrorPage from "./pages/error/ErrorPage";
 import FindFriendsPage from "./pages/find-friends/FindFriendsPage";
 import NavMobileBottom from "./Ui/mobile-nav/nav-bottom/NavMobileBottom";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import useSession from "./hooks/use-session";
 
 function App() {
   const token = localStorage.getItem("token");
   const authData = useSelector((state) => state.auth);
   const isAuth = useSelector((state) => state.auth.isAuthenticated);
   const isAdmin = useSelector((state) => state.auth.role === "admin");
+  const { createSession, updateSession } = useSession();
   // console.log(authData);
   const [screenView, setScreenView] = useState("desktop");
   const { userLogin } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   // console.log('app render');
+
   useEffect(() => {
     // authenticate token
     async function checkAuth() {
@@ -44,6 +47,10 @@ function App() {
           setIsLoading(false);
           return;
         }
+        //track login
+        updateSession("login", data.username);
+
+        //login user
         userLogin({
           token,
           id: data.id,
@@ -55,9 +62,35 @@ function App() {
       }
       setIsLoading(false);
     }
-    checkAuth();
+    // create a session
+    console.log(isAdmin);
+    if (sessionStorage.getItem("visit") === null) {
+      (async () => {
+        await createSession();
+        checkAuth();
+      })();
+    } else {
+      checkAuth();
+    }
   }, []);
 
+  // const [visitedPageCount, setVisitedPageCount] = useState(0);
+  // const history = useHistory();
+
+  // useEffect(() => {
+  //   // This function will be called whenever the route changes
+  //   const unlisten = history.listen((location, action) => {
+  //     console.log("Page changed:", location.pathname);
+  //     // You can perform any actions here based on the route change
+  //   });
+
+  //   // Cleanup function to unsubscribe from the history listener
+  //   return () => {
+  //     unlisten();
+  //   };
+  // }, [history]);
+
+  /////////////////////
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth > 600) {

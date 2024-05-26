@@ -8,10 +8,12 @@ import sendRequest from "../../helper/sendRequest";
 import useInput from "../../hooks/use-input";
 import useAuth from "../../hooks/use-Auth";
 import LoadingSpinner from "../../Ui/LoadingSpinner";
+import useSession from "../../hooks/use-session";
 
 const SignupPage = () => {
   const [isAlert, setIsAlert] = useTimeout(null, 4);
   const { userLogin } = useAuth();
+  const { updateSession } = useSession();
   const [isFormSubmitting, setIsFormSubmitting] = useState(false);
   const [
     fnameInput,
@@ -113,7 +115,10 @@ const SignupPage = () => {
       setIsAlert(error);
       return;
     }
-    console.log(data);
+    // console.log(data);
+    //track signup
+    updateSession("signup", usernameInput);
+    //login user
     userLogin(data);
   };
   return (

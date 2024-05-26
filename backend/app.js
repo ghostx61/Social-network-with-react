@@ -13,6 +13,7 @@ var Comment = require("./models/comment");
 var Post = require("./models/post");
 var User = require("./models/user");
 var Follow = require("./models/follow");
+var Session = require("./models/session");
 
 var postRoutes = require("./routes/posts");
 var profileRoutes = require("./routes/profile");
@@ -20,6 +21,7 @@ var authRoutes = require("./routes/auth");
 var indexRoutes = require("./routes/index");
 var commentRoutes = require("./routes/comments");
 var adminRoutes = require("./routes/admin");
+var sessionRoutes = require("./routes/session");
 
 require("dotenv").config();
 app.use(express.static(__dirname + "/public"));
@@ -83,13 +85,14 @@ app.use("/api/post", postRoutes);
 app.use("/api/user", indexRoutes);
 app.use("/api/comment", commentRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/session", sessionRoutes);
 
 // for testing
 app.get("/api/name", (req, res) => {
   res.send("api home");
 });
 app.post("/api/ytest", (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
   res.send("api post");
 });
 

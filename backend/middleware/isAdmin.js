@@ -1,6 +1,6 @@
 const isAdmin = async (req, res, next) => {
   const user = req.user;
-  console.log(user);
+  // console.log(user);
   if (user && user.role === "admin") {
     next();
   } else {
