@@ -1,6 +1,6 @@
 const sendRequest = async (options) => {
   const API_URL = process.env.REACT_APP_API_URL;
-  console.log("api url: " + API_URL);
+  // console.log("api url: " + API_URL);
   //   console.log("working");
   let data = null;
   let error = null;

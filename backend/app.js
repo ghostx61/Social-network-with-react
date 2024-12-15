@@ -26,6 +26,7 @@ var sessionRoutes = require("./routes/session");
 require("dotenv").config();
 app.use(express.static(__dirname + "/public"));
 app.use(express.static(path.join(__dirname, "../frontend/build/")));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(cors());
 
 app.use(methodOverride("_method"));

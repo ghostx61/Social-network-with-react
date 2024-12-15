@@ -2,22 +2,25 @@ var express = require("express");
 var router = express.Router();
 const mongoose = require("mongoose");
 const { check, validationResult } = require("express-validator");
-//cloudinary config
 var multer = require("multer");
+const fs = require("fs");
+const path = require("path");
 const auth = require("../middleware/auth");
-var storage = multer.diskStorage({
-  filename: function (req, file, callback) {
-    callback(null, Date.now() + file.originalname);
-  },
-});
-var imageFilter = function (req, file, cb) {
-  // accept image files only
-  if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/i)) {
-    return cb(new Error("Only image files are allowed!"), false);
-  }
-  cb(null, true);
-};
-var upload = multer({ storage: storage, fileFilter: imageFilter });
+
+//cloudinary config
+// var storage = multer.diskStorage({
+//   filename: function (req, file, callback) {
+//     callback(null, Date.now() + file.originalname);
+//   },
+// });
+// var imageFilter = function (req, file, cb) {
+//   // accept image files only
+//   if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/i)) {
+//     return cb(new Error("Only image files are allowed!"), false);
+//   }
+//   cb(null, true);
+// };
+// var upload = multer({ storage: storage, fileFilter: imageFilter });
 
 var cloudinary = require("cloudinary");
 cloudinary.config({
@@ -26,17 +29,37 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+// Set up multer storage configuration
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadPath = path.join(__dirname, "../uploads/");
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+
+// Set up multer file filter to accept only images
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith("image/")) {
+    cb(null, true);
+  } else {
+    cb(new Error("File type not allowed"), false);
+  }
+};
+
+const upload = multer({ storage, fileFilter });
+
 var User = require("../models/user");
 var Post = require("../models/post");
 var Comment = require("../models/comment");
 var middleware = require("../middleware");
 
 //new
-
-//test
-router.get("/test", (req, res) => {
-  res.send({ success: "test working" });
-});
 
 //GET  |   get user's following post   |  /api/post/follow
 router.get("/follow", auth, async function (req, res) {
@@ -135,34 +158,162 @@ router.get("/:postId", auth, async (req, res) => {
   }
 });
 
-// POST  | Create new post  | /api/post/new
+// // POST  | Create new post  | /api/post/new
+// router.post("/new", auth, upload.single("photo1"), async (req, res) => {
+//   // console.log(req.headers['content-type']);
+//   // console.log(req.file);
+//   try {
+//     let postBody = {
+//       user: req.user.id,
+//       text: req.body.text,
+//       type: "text",
+//     };
+//     if (req.file) {
+//       // save image in cloudinary
+//       const newImage = req.file.path;
+//       var result = await cloudinary.v2.uploader.upload(newImage);
+//       // console.log(result);
+//       //add image to body
+//       postBody.photo = result.secure_url;
+//       postBody.type = "photo";
+//       postBody.photoId = result.public_id;
+//     }
+//     const newPost = new Post(postBody);
+//     await newPost.save();
+//     return res.json({ success: true });
+//   } catch (err) {
+//     console.error(err.message);
+//     return res.send({ errors: [{ msg: "Server Error" }] });
+//   }
+// });
+
+// POST  | Create new post  | /api/post/new2
 router.post("/new", auth, upload.single("photo1"), async (req, res) => {
-  // console.log(req.headers['content-type']);
-  // console.log(req.file);
   try {
     let postBody = {
       user: req.user.id,
       text: req.body.text,
       type: "text",
     };
+
     if (req.file) {
-      // save image in cloudinary
-      const newImage = req.file.path;
-      var result = await cloudinary.v2.uploader.upload(newImage);
-      // console.log(result);
-      //add image to body
-      postBody.photo = result.secure_url;
+      // Save image on the server
+      const newImagePath = `/uploads/${req.file.filename}`;
+
+      // Add image details to postBody
+      postBody.photo = newImagePath;
       postBody.type = "photo";
-      postBody.photoId = result.public_id;
     }
+
     const newPost = new Post(postBody);
+    // console.log(newPost);
     await newPost.save();
-    return res.json({ success: true });
+    return res.json({ success: true, imageUrl: postBody.photo });
   } catch (err) {
     console.error(err.message);
-    return res.send({ errors: [{ msg: "Server Error" }] });
+    return res.status(500).send({ errors: [{ msg: "Server Error" }] });
   }
 });
+
+//Delete  |   delete post   |  /api/post/:postId
+router.delete("/:postId", auth, async function (req, res) {
+  try {
+    //start mongodb session
+    session = await mongoose.startSession();
+    session.startTransaction();
+
+    // find post by postId and userid and delete
+    const deletedPost = await Post.findOneAndDelete(
+      {
+        _id: req.params.postId,
+        user: req.user.id,
+      },
+      { session }
+    );
+    // console.log(deletedPost);
+
+    //if user not found, end session
+    if (!deletedPost) {
+      await session.abortTransaction();
+      session.endSession();
+      throw new Error("Post not found");
+    }
+
+    // Delete image from local storage if it exists
+    if (deletedPost.photo) {
+      const imagePath = path.join(__dirname, "..", deletedPost.photo);
+      fs.unlink(imagePath, (err) => {
+        if (err) {
+          console.error(`Failed to delete image file: ${err.message}`);
+        } else {
+          console.log(`Image file ${imagePath} deleted successfully.`);
+        }
+      });
+    }
+
+    // delete image for cloudinary
+    await cloudinary.v2.uploader.destroy(deletedPost.photoId);
+
+    // delete post's comments
+    await Comment.deleteMany({ post: deletedPost._id }, { session });
+
+    // If all queries are executed successfully, commit changes
+    await session.commitTransaction();
+
+    // return success message
+    res.status(201).json({ success: true });
+  } catch (err) {
+    console.log(err.message);
+    await session.abortTransaction();
+    res.status(404).json({ error: err.message });
+  } finally {
+    session.endSession();
+  }
+});
+
+//Delete  |   delete post   |  /api/post/:postId
+// router.delete("/:postId", auth, async function (req, res) {
+//   try {
+//     //start mongodb session
+//     session = await mongoose.startSession();
+//     session.startTransaction();
+
+//     // find post by postId and userid and delete
+//     const deletedPost = await Post.findOneAndDelete(
+//       {
+//         _id: req.params.postId,
+//         user: req.user.id,
+//       },
+//       { session }
+//     );
+//     // console.log(deletedPost);
+
+//     //if user not found, end session
+//     if (!deletedPost) {
+//       await session.abortTransaction();
+//       session.endSession();
+//       throw new Error("Post not found");
+//     }
+
+//     // delete image for cloudinary
+//     await cloudinary.v2.uploader.destroy(deletedPost.photoId);
+
+//     // delete post's comments
+//     await Comment.deleteMany({ post: deletedPost._id }, { session });
+
+//     // If all queries are executed successfully, commit changes
+//     await session.commitTransaction();
+
+//     // return success message
+//     res.status(201).json({ success: true });
+//   } catch (err) {
+//     console.log(err.message);
+//     await session.abortTransaction();
+//     res.status(404).json({ error: err.message });
+//   } finally {
+//     session.endSession();
+//   }
+// });
 
 //GET  |   add like to post   |  /api/post/:postId/like
 router.get("/:postId/like", auth, async function (req, res) {
@@ -210,50 +361,6 @@ router.get("/:postId/unlike", auth, async function (req, res) {
   } catch (err) {
     console.log(err.message);
     return res.send({ errors: [{ msg: "Server Error" }] });
-  }
-});
-
-//Delete  |   delete post   |  /api/post/:postId
-router.delete("/:postId", auth, async function (req, res) {
-  try {
-    //start mongodb session
-    session = await mongoose.startSession();
-    session.startTransaction();
-
-    // find post by postId and userid and delete
-    const deletedPost = await Post.findOneAndDelete(
-      {
-        _id: req.params.postId,
-        user: req.user.id,
-      },
-      { session }
-    );
-    // console.log(deletedPost);
-
-    //if user not found, end session
-    if (!deletedPost) {
-      await session.abortTransaction();
-      session.endSession();
-      throw new Error("Post not found");
-    }
-
-    // delete image for cloudinary
-    await cloudinary.v2.uploader.destroy(deletedPost.photoId);
-
-    // delete post's comments
-    await Comment.deleteMany({ post: deletedPost._id }, { session });
-
-    // If all queries are executed successfully, commit changes
-    await session.commitTransaction();
-
-    // return success message
-    res.status(201).json({ success: true });
-  } catch (err) {
-    console.log(err.message);
-    await session.abortTransaction();
-    res.status(404).json({ error: err.message });
-  } finally {
-    session.endSession();
   }
 });
 
