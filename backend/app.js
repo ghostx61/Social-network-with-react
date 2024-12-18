@@ -1,9 +1,8 @@
 var express = require("express");
 var app = express();
 var mongoose = require("mongoose");
-var passport = require("passport");
-var localStrategy = require("passport-local");
-var passportLocalMongoose = require("passport-local-mongoose");
+// var passport = require("passport");
+// var localStrategy = require("passport-local");
 var methodOverride = require("method-override");
 var flash = require("connect-flash");
 const path = require("path");
@@ -44,12 +43,12 @@ var bodyParser = require("body-parser");
 app.use(express.json({ extended: false, limit: "50mb" }));
 app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 
-var cloudinary = require("cloudinary");
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+// var cloudinary = require("cloudinary");
+// cloudinary.config({
+//   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+//   api_key: process.env.CLOUDINARY_API_KEY,
+//   api_secret: process.env.CLOUDINARY_API_SECRET,
+// });
 
 //DATABASEURL variable for mongoAtlas
 mongoose.set("strictQuery", false); // to remove mongoose warning
@@ -61,19 +60,19 @@ mongoose
   .catch((error) => console.log(error));
 
 //passport config
-app.use(
-  require("express-session")({
-    secret: "dsadsfjfgjhfghfdjhfgjgdhjkg",
-    resave: false,
-    saveUninitialized: false,
-  })
-);
+// app.use(
+//   require("express-session")({
+//     secret: "dsadsfjfgjhfghfdjhfgjgdhjkg",
+//     resave: false,
+//     saveUninitialized: false,
+//   })
+// );
 
-app.use(passport.initialize());
-app.use(passport.session());
-passport.use(new localStrategy(User.authenticate()));
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+// app.use(passport.initialize());
+// app.use(passport.session());
+// passport.use(new localStrategy(User.authenticate()));
+// passport.serializeUser(User.serializeUser());
+// passport.deserializeUser(User.deserializeUser());
 
 // app.use(function (req, res, next) {
 //   res.locals.message = req.flash("error");

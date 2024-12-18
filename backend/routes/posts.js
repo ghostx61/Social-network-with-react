@@ -9,20 +9,6 @@ const auth = require("../middleware/auth");
 const sharp = require("sharp");
 const { compressImage } = require("../helper/imageStorage");
 const { deleteImage } = require("../helper/imageStorage");
-//cloudinary config
-// var storage = multer.diskStorage({
-//   filename: function (req, file, callback) {
-//     callback(null, Date.now() + file.originalname);
-//   },
-// });
-// var imageFilter = function (req, file, cb) {
-//   // accept image files only
-//   if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/i)) {
-//     return cb(new Error("Only image files are allowed!"), false);
-//   }
-//   cb(null, true);
-// };
-// var upload = multer({ storage: storage, fileFilter: imageFilter });
 
 var cloudinary = require("cloudinary");
 cloudinary.config({
@@ -149,35 +135,6 @@ router.get("/:postId", auth, async (req, res) => {
   }
 });
 
-// // POST  | Create new post  | /api/post/new
-// router.post("/new", auth, upload.single("photo1"), async (req, res) => {
-//   // console.log(req.headers['content-type']);
-//   // console.log(req.file);
-//   try {
-//     let postBody = {
-//       user: req.user.id,
-//       text: req.body.text,
-//       type: "text",
-//     };
-//     if (req.file) {
-//       // save image in cloudinary
-//       const newImage = req.file.path;
-//       var result = await cloudinary.v2.uploader.upload(newImage);
-//       // console.log(result);
-//       //add image to body
-//       postBody.photo = result.secure_url;
-//       postBody.type = "photo";
-//       postBody.photoId = result.public_id;
-//     }
-//     const newPost = new Post(postBody);
-//     await newPost.save();
-//     return res.json({ success: true });
-//   } catch (err) {
-//     console.error(err.message);
-//     return res.send({ errors: [{ msg: "Server Error" }] });
-//   }
-// });
-
 // POST  | Create new post  | /api/post/new2
 router.post("/new", auth, upload.single("photo1"), async (req, res) => {
   try {
@@ -257,50 +214,6 @@ router.delete("/:postId", auth, async function (req, res) {
     session.endSession();
   }
 });
-
-//Delete  |   delete post   |  /api/post/:postId
-// router.delete("/:postId", auth, async function (req, res) {
-//   try {
-//     //start mongodb session
-//     session = await mongoose.startSession();
-//     session.startTransaction();
-
-//     // find post by postId and userid and delete
-//     const deletedPost = await Post.findOneAndDelete(
-//       {
-//         _id: req.params.postId,
-//         user: req.user.id,
-//       },
-//       { session }
-//     );
-//     // console.log(deletedPost);
-
-//     //if user not found, end session
-//     if (!deletedPost) {
-//       await session.abortTransaction();
-//       session.endSession();
-//       throw new Error("Post not found");
-//     }
-
-//     // delete image for cloudinary
-//     await cloudinary.v2.uploader.destroy(deletedPost.photoId);
-
-//     // delete post's comments
-//     await Comment.deleteMany({ post: deletedPost._id }, { session });
-
-//     // If all queries are executed successfully, commit changes
-//     await session.commitTransaction();
-
-//     // return success message
-//     res.status(201).json({ success: true });
-//   } catch (err) {
-//     console.log(err.message);
-//     await session.abortTransaction();
-//     res.status(404).json({ error: err.message });
-//   } finally {
-//     session.endSession();
-//   }
-// });
 
 //GET  |   add like to post   |  /api/post/:postId/like
 router.get("/:postId/like", auth, async function (req, res) {
