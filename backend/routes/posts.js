@@ -6,7 +6,9 @@ var multer = require("multer");
 const fs = require("fs");
 const path = require("path");
 const auth = require("../middleware/auth");
-
+const sharp = require("sharp");
+const { compressImage } = require("../helper/imageStorage");
+const { deleteImage } = require("../helper/imageStorage");
 //cloudinary config
 // var storage = multer.diskStorage({
 //   filename: function (req, file, callback) {
@@ -30,18 +32,7 @@ cloudinary.config({
 });
 
 // Set up multer storage configuration
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadPath = path.join(__dirname, "../uploads/");
-    if (!fs.existsSync(uploadPath)) {
-      fs.mkdirSync(uploadPath, { recursive: true });
-    }
-    cb(null, uploadPath);
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
+const storage = multer.memoryStorage();
 
 // Set up multer file filter to accept only images
 const fileFilter = (req, file, cb) => {
@@ -197,11 +188,14 @@ router.post("/new", auth, upload.single("photo1"), async (req, res) => {
     };
 
     if (req.file) {
-      // Save image on the server
-      const newImagePath = `/uploads/${req.file.filename}`;
+      // Compress and save image
+      const compressedImagePath = await compressImage(
+        req.file.buffer,
+        req.file.originalname
+      );
 
       // Add image details to postBody
-      postBody.photo = newImagePath;
+      postBody.photo = `/uploads/${path.basename(compressedImagePath)}`;
       postBody.type = "photo";
     }
 
@@ -241,18 +235,11 @@ router.delete("/:postId", auth, async function (req, res) {
 
     // Delete image from local storage if it exists
     if (deletedPost.photo) {
-      const imagePath = path.join(__dirname, "..", deletedPost.photo);
-      fs.unlink(imagePath, (err) => {
-        if (err) {
-          console.error(`Failed to delete image file: ${err.message}`);
-        } else {
-          console.log(`Image file ${imagePath} deleted successfully.`);
-        }
-      });
+      deleteImage(deletedPost.photo);
     }
 
-    // delete image for cloudinary
-    await cloudinary.v2.uploader.destroy(deletedPost.photoId);
+    // // delete image for cloudinary
+    // await cloudinary.v2.uploader.destroy(deletedPost.photoId);
 
     // delete post's comments
     await Comment.deleteMany({ post: deletedPost._id }, { session });

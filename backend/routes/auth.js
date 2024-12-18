@@ -1,6 +1,5 @@
 var express = require("express");
 var router = express.Router();
-var passport = require("passport");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { check, validationResult } = require("express-validator");
@@ -8,7 +7,7 @@ require("dotenv").config();
 
 const auth = require("../middleware/auth");
 var User = require("../models/user");
-const expiresIn = process.env.ENVIRONMENT === "dev" ? "24h" : "1h";
+const expiresIn = process.env.ENVIRONMENT === "dev" ? "30d" : "1h";
 // console.log(expiresIn);
 
 // //signup

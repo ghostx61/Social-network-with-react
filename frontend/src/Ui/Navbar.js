@@ -10,12 +10,14 @@ import Modal from "../Ui/Modal";
 import classes from "./Navbar.module.css";
 import LoadingSpinner from "./LoadingSpinner";
 import useModal from "../hooks/use-modal";
+import useGlobalData from "../hooks/use-global-data";
 
 const Navbar = (props) => {
   const authData = useSelector((state) => state.auth);
   const isAuth = useSelector((state) => state.auth.isAuthenticated);
   const isAdmin = useSelector((state) => state.auth.role === "admin");
   const history = useHistory();
+  const { setProfileImg } = useGlobalData();
 
   //post modal
   const isPostModalOpen = useSelector((state) => state.modal.isPostModalOpen);
@@ -32,7 +34,8 @@ const Navbar = (props) => {
   const [postTextInput, setPostTextInput] = useState("");
   const [postBtnEnable, setPostBtnEnable] = useState(false);
   const [isPostUploading, setIsPostUploading] = useState(false);
-  const [profileImg, setProfileImg] = useState("/profile-pic-default.webp");
+  // const [profileImg, setProfileImg] = useState("/profile-pic-default.webp");
+  const profileImg = useSelector((state) => state.globalData.profileImg);
   const [screenView, setScreenView] = useState("desktop");
   const username = authData.username;
   // console.log(authData);
